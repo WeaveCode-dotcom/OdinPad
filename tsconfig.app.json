@@ -15,12 +15,14 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
+    /* Linting — full strict mode is the goal; enable incrementally via tsconfig.strict.json. */
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noImplicitAny": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
 
     "baseUrl": ".",
     "paths": {

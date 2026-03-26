@@ -1,0 +1,5 @@
+-- Ad-hoc RLS checks (run manually in SQL Editor as an authenticated test user, not as postgres).
+-- Example pattern:
+-- SET request.jwt.claim.sub = '<user-uuid>';
+-- SELECT count(*) FROM public.novels WHERE user_id = '<user-uuid>';
+-- Attempts to read another user's rows should return 0 rows under RLS.

@@ -1,9 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User as SupaUser, AuthChangeEvent, Session } from '@supabase/supabase-js';
-import { buildAuthRedirectUrl, buildPasswordResetRedirectUrl, getOAuthCallbackPath } from '@/lib/auth-redirect';
-import { toast } from '@/hooks/use-toast';
-import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
+import type { AuthChangeEvent, Session, User as SupaUser } from "@supabase/supabase-js";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables, TablesUpdate } from "@/integrations/supabase/types";
+import { buildAuthRedirectUrl, buildPasswordResetRedirectUrl, getOAuthCallbackPath } from "@/lib/auth-redirect";
+import { clearRemoteFeatureFlagCache } from "@/lib/remote-feature-flags";
+import { mapSupabaseError } from "@/lib/supabase-errors";
 
 interface Profile {
   display_name: string | null;
@@ -16,6 +19,8 @@ interface AuthUser {
   email: string;
   name: string;
   avatarUrl?: string;
+  /** ISO timestamp from Supabase Auth (analytics, e.g. checklist `ms_since_signup`). */
+  createdAt?: string;
 }
 
 interface AuthContextType {
@@ -41,16 +46,17 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
 
 function mapUser(su: SupaUser): AuthUser {
   return {
     id: su.id,
-    email: su.email ?? '',
-    name: su.user_metadata?.full_name || su.user_metadata?.name || su.email?.split('@')[0] || '',
+    email: su.email ?? "",
+    name: su.user_metadata?.full_name || su.user_metadata?.name || su.email?.split("@")[0] || "",
     avatarUrl: su.user_metadata?.avatar_url,
+    createdAt: su.created_at,
   };
 }
 
@@ -58,8 +64,8 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-type PreferenceRow = Tables<'user_preferences'>;
-type PreferenceUpdate = TablesUpdate<'user_preferences'>;
+type PreferenceRow = Tables<"user_preferences">;
+type PreferenceUpdate = TablesUpdate<"user_preferences">;
 
 export interface UserPreferences {
   onboarding_step: string;
@@ -85,11 +91,26 @@ export interface UserPreferences {
   reminder_streak: boolean;
   reminder_progress_email: string;
   reminder_push_enabled: boolean;
+  gamification_enabled: boolean;
+  show_odyssey_ui: boolean;
+  seasonal_events_enabled: boolean;
   checklist_opening_scene_done: boolean;
   checklist_character_done: boolean;
   checklist_goal_done: boolean;
   guided_tour_completed_at: string | null;
   first_100_words_at: string | null;
+  first_run_novel_created?: boolean;
+  first_run_idea_web_visited?: boolean;
+  first_run_write_opened?: boolean;
+  /** Cosmetic; completing the three first-run flags unlocks this (see Foundations checklist). */
+  foundations_badge_unlocked?: boolean;
+  onboarding_skip_reason?: string | null;
+  /** Idea Web automation (JSON from DB). */
+  idea_web_settings?: Record<string, unknown>;
+  /** Local calendar day (YYYY-MM-DD) when streak pressure is paused. */
+  streak_rest_date?: string | null;
+  /** AI companion toggles (daily seed prompt, enrich, stretches). */
+  ai_companion?: Record<string, unknown>;
 }
 
 function mapPreferences(row: PreferenceRow): UserPreferences {
@@ -117,11 +138,28 @@ function mapPreferences(row: PreferenceRow): UserPreferences {
     reminder_streak: row.reminder_streak,
     reminder_progress_email: row.reminder_progress_email,
     reminder_push_enabled: row.reminder_push_enabled,
+    gamification_enabled: row.gamification_enabled ?? true,
+    show_odyssey_ui: row.show_odyssey_ui ?? true,
+    seasonal_events_enabled: row.seasonal_events_enabled ?? true,
     checklist_opening_scene_done: row.checklist_opening_scene_done,
     checklist_character_done: row.checklist_character_done,
     checklist_goal_done: row.checklist_goal_done,
     guided_tour_completed_at: row.guided_tour_completed_at,
     first_100_words_at: row.first_100_words_at,
+    first_run_novel_created: row.first_run_novel_created ?? false,
+    first_run_idea_web_visited: row.first_run_idea_web_visited ?? false,
+    first_run_write_opened: row.first_run_write_opened ?? false,
+    foundations_badge_unlocked: row.foundations_badge_unlocked ?? false,
+    onboarding_skip_reason: row.onboarding_skip_reason ?? null,
+    idea_web_settings:
+      row.idea_web_settings != null && typeof row.idea_web_settings === "object"
+        ? (row.idea_web_settings as Record<string, unknown>)
+        : {},
+    streak_rest_date: row.streak_rest_date ?? null,
+    ai_companion:
+      row.ai_companion != null && typeof row.ai_companion === "object"
+        ? (row.ai_companion as Record<string, unknown>)
+        : {},
   };
 }
 
@@ -140,35 +178,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = useCallback(async (userId: string) => {
     const { data, error } = await supabase
-      .from('profiles')
-      .select('display_name, avatar_url, bio')
-      .eq('user_id', userId)
-      .single();
+      .from("profiles")
+      .select("display_name, avatar_url, bio")
+      .eq("user_id", userId)
+      .maybeSingle();
     if (error) {
-      console.warn('OdinPad: failed to fetch profile', error.message);
+      console.warn("OdinPad: failed to fetch profile", error.message);
       return;
     }
     if (data) setProfile(data);
   }, []);
 
   const fetchPreferences = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_preferences')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
+    const { data, error } = await supabase.from("user_preferences").select("*").eq("user_id", userId).maybeSingle();
     if (error) {
-      console.warn('OdinPad: failed to fetch preferences', error.message);
+      console.warn("OdinPad: failed to fetch preferences", error.message);
       return;
     }
     if (!data) {
       const { data: inserted, error: insertError } = await supabase
-        .from('user_preferences')
-        .upsert({ user_id: userId }, { onConflict: 'user_id' })
-        .select('*')
-        .single();
+        .from("user_preferences")
+        .upsert({ user_id: userId }, { onConflict: "user_id" })
+        .select("*")
+        .maybeSingle();
       if (insertError) {
-        console.warn('OdinPad: failed to initialize preferences', insertError.message);
+        console.warn("OdinPad: failed to initialize preferences", insertError.message);
         return;
       }
       setPreferences(mapPreferences(inserted));
@@ -177,35 +211,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPreferences(mapPreferences(data));
   }, []);
 
-  const applySession = useCallback((session: Session | null) => {
-    if (session?.user) {
-      const mapped = mapUser(session.user);
-      setUser(mapped);
-      setTimeout(() => {
-        void fetchProfile(session.user.id);
-        void fetchPreferences(session.user.id);
-      }, 0);
-      return;
-    }
-    setUser(null);
-    setProfile(null);
-    setPreferences(null);
-  }, [fetchProfile, fetchPreferences]);
+  const applySession = useCallback(
+    (session: Session | null) => {
+      if (session?.user) {
+        const mapped = mapUser(session.user);
+        setUser(mapped);
+        setTimeout(() => {
+          void fetchProfile(session.user.id);
+          void fetchPreferences(session.user.id);
+        }, 0);
+        return;
+      }
+      setUser(null);
+      setProfile(null);
+      setPreferences(null);
+    },
+    [fetchProfile, fetchPreferences],
+  );
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       switch (event) {
-        case 'INITIAL_SESSION':
-        case 'SIGNED_IN':
-        case 'TOKEN_REFRESHED':
-        case 'USER_UPDATED':
+        case "INITIAL_SESSION":
+        case "SIGNED_IN":
+        case "TOKEN_REFRESHED":
+        case "USER_UPDATED":
           applySession(session);
           break;
-        case 'SIGNED_OUT':
+        case "SIGNED_OUT":
           if (hadUserRef.current && !manualSignOutRef.current) {
             toast({
-              title: 'Session ended',
-              description: 'Your session has ended. Please sign in again.',
+              title: "Session ended",
+              description: "Your session has ended. Please sign in again.",
             });
           }
           manualSignOutRef.current = false;
@@ -221,9 +260,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    void supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
-        console.warn('OdinPad: failed to hydrate auth session', error.message);
+        console.warn("OdinPad: failed to hydrate auth session", error.message);
       } else {
         applySession(session ?? null);
       }
@@ -244,24 +283,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         emailRedirectTo: buildAuthRedirectUrl(getOAuthCallbackPath()),
       },
     });
-    if (error) return { error: error.message };
+    if (error) return { error: mapSupabaseError(error) };
     return {};
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email: normalizeEmail(email), password });
-    if (error) return { error: error.message };
+    if (error) return { error: mapSupabaseError(error) };
     return {};
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: buildAuthRedirectUrl(getOAuthCallbackPath()),
       },
     });
-    if (error) return { error: error.message };
+    if (error) return { error: mapSupabaseError(error) };
     return {};
   }, []);
 
@@ -269,13 +308,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.resetPasswordForEmail(normalizeEmail(email), {
       redirectTo: buildPasswordResetRedirectUrl(),
     });
-    if (error) return { error: error.message };
+    if (error) return { error: mapSupabaseError(error) };
     return {};
   }, []);
 
   const updatePassword = useCallback(async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
-    if (error) return { error: error.message };
+    if (error) return { error: mapSupabaseError(error) };
     return {};
   }, []);
 
@@ -284,8 +323,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signOut();
     if (error) {
       manualSignOutRef.current = false;
-      return { error: error.message };
+      return { error: mapSupabaseError(error) };
     }
+    clearRemoteFeatureFlagCache();
     setUser(null);
     setProfile(null);
     return {};
@@ -293,11 +333,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOutAllSessions = useCallback(async () => {
     manualSignOutRef.current = true;
-    const { error } = await supabase.auth.signOut({ scope: 'global' });
+    const { error } = await supabase.auth.signOut({ scope: "global" });
     if (error) {
       manualSignOutRef.current = false;
-      return { error: error.message };
+      return { error: mapSupabaseError(error) };
     }
+    clearRemoteFeatureFlagCache();
     setUser(null);
     setProfile(null);
     return {};
@@ -305,42 +346,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const deleteAccount = useCallback(async () => {
     manualSignOutRef.current = true;
-    const { error } = await supabase.rpc('delete_my_account');
+    const { error } = await supabase.rpc("delete_my_account");
     if (error) {
       manualSignOutRef.current = false;
-      return { error: error.message };
+      return { error: mapSupabaseError(error) };
     }
+    clearRemoteFeatureFlagCache();
     setUser(null);
     setProfile(null);
     return {};
   }, []);
 
-  const updateProfile = useCallback(async (data: Partial<Profile>) => {
-    if (!user) return { error: 'Not authenticated' };
-    const { error } = await supabase.from('profiles').update(data).eq('user_id', user.id);
-    if (error) return { error: error.message };
-    await fetchProfile(user.id);
-    return {};
-  }, [user, fetchProfile]);
+  const updateProfile = useCallback(
+    async (data: Partial<Profile>) => {
+      if (!user) return { error: "Not authenticated" };
+      const { error } = await supabase.from("profiles").update(data).eq("user_id", user.id);
+      if (error) return { error: mapSupabaseError(error) };
+      await fetchProfile(user.id);
+      return {};
+    },
+    [user, fetchProfile],
+  );
 
-  const updatePreferences = useCallback(async (data: Partial<UserPreferences>) => {
-    if (!user) return { error: 'Not authenticated' };
-    const payload: PreferenceUpdate = data;
-    const { data: updated, error } = await supabase
-      .from('user_preferences')
-      .upsert(
-        {
-          user_id: user.id,
-          ...payload,
-        },
-        { onConflict: 'user_id' },
-      )
-      .select('*')
-      .single();
-    if (error) return { error: error.message };
-    setPreferences(mapPreferences(updated));
-    return {};
-  }, [user]);
+  const updatePreferences = useCallback(
+    async (data: Partial<UserPreferences>) => {
+      if (!user) return { error: "Not authenticated" };
+      const payload: PreferenceUpdate = data as PreferenceUpdate;
+      const { data: updated, error } = await supabase
+        .from("user_preferences")
+        .upsert(
+          {
+            user_id: user.id,
+            ...payload,
+          },
+          { onConflict: "user_id" },
+        )
+        .select("*")
+        .single();
+      if (error) return { error: mapSupabaseError(error) };
+      setPreferences(mapPreferences(updated));
+      return {};
+    },
+    [user],
+  );
 
   const onboardingCompleted = Boolean(preferences?.onboarding_completed_at);
   const onboardingDeferred = Boolean(preferences?.onboarding_deferred);

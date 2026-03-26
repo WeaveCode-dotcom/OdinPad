@@ -1,5 +1,7 @@
 # OdinPad
 
+**Product name:** OdinPad (user-facing). The npm package name is `odinpad` (lowercase); localStorage keys use the `odinpad_` prefix intentionally for stable client data across renames.
+
 OdinPad is a fiction-writing workspace built for plotters, pantsers, and hybrid writers.  
 It combines planning, drafting, codex/worldbuilding, review workflows, onboarding personalization, and a writer-focused settings command center.
 

@@ -1,9 +1,6 @@
-import { useMemo, useState } from 'react';
-import { Shield, KeyRound, LogOut, Trash2 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { KeyRound, LogOut, MonitorSmartphone, Shield, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,29 +10,57 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from '@/hooks/use-toast';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AccountSecurityModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+function formatSessionExpiry(expiresAt?: number | null): string {
+  if (expiresAt == null) return "—";
+  const ms = expiresAt * 1000;
+  if (!Number.isFinite(ms)) return "—";
+  return new Date(ms).toLocaleString();
+}
+
 export default function AccountSecurityModal({ open, onOpenChange }: AccountSecurityModalProps) {
-  const { user, requestPasswordReset, signOutAllSessions: signOutAllSessionsRemote, deleteAccount } = useAuth();
+  const {
+    user,
+    requestPasswordReset,
+    signOut,
+    signOutAllSessions: signOutAllSessionsRemote,
+    deleteAccount,
+  } = useAuth();
   const [isResetting, setIsResetting] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const [isGlobalSignOut, setIsGlobalSignOut] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmGlobalSignOutOpen, setConfirmGlobalSignOutOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [sessionExpiresLabel, setSessionExpiresLabel] = useState<string>("—");
 
-  const canDelete = useMemo(() => deleteConfirmation.trim() === 'DELETE', [deleteConfirmation]);
+  const canDelete = useMemo(() => deleteConfirmation.trim() === "DELETE", [deleteConfirmation]);
+
+  useEffect(() => {
+    if (!open) return;
+    setError(null);
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      setSessionExpiresLabel(formatSessionExpiry(session?.expires_at ?? null));
+    });
+  }, [open]);
 
   const sendPasswordReset = async () => {
     if (!user?.email) {
-      setError('No account email available.');
+      setError("No account email available.");
       return;
     }
     setIsResetting(true);
@@ -43,18 +68,36 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
     const { error: resetError } = await requestPasswordReset(user.email);
     setIsResetting(false);
     if (resetError) {
-      setError(resetError.message);
+      setError(resetError);
       toast({
-        title: 'Password reset failed',
-        description: resetError.message,
-        variant: 'destructive',
+        title: "Password reset failed",
+        description: resetError,
+        variant: "destructive",
       });
       return;
     }
     toast({
-      title: 'Reset email sent',
-      description: 'Check your inbox for a password reset link.',
+      title: "Reset email sent",
+      description: "Check your inbox for a password reset link.",
     });
+  };
+
+  const signOutThisDevice = async () => {
+    setIsSigningOut(true);
+    setError(null);
+    const { error: signOutError } = await signOut();
+    setIsSigningOut(false);
+    if (signOutError) {
+      setError(signOutError);
+      toast({
+        title: "Sign out failed",
+        description: signOutError,
+        variant: "destructive",
+      });
+      return;
+    }
+    onOpenChange(false);
+    toast({ title: "Signed out", description: "You have been signed out on this device." });
   };
 
   const signOutAllSessions = async () => {
@@ -63,17 +106,17 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
     const { error: signOutError } = await signOutAllSessionsRemote();
     setIsGlobalSignOut(false);
     if (signOutError) {
-      setError(signOutError.message);
+      setError(signOutError);
       toast({
-        title: 'Global sign-out failed',
-        description: signOutError.message,
-        variant: 'destructive',
+        title: "Global sign-out failed",
+        description: signOutError,
+        variant: "destructive",
       });
       return;
     }
     toast({
-      title: 'All sessions signed out',
-      description: 'You have been signed out on all devices.',
+      title: "All sessions signed out",
+      description: "You have been signed out on all devices.",
     });
   };
 
@@ -84,17 +127,17 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
     const { error: deleteError } = await deleteAccount();
     setIsDeleting(false);
     if (deleteError) {
-      setError(deleteError.message);
+      setError(deleteError);
       toast({
-        title: 'Account deletion failed',
-        description: deleteError.message,
-        variant: 'destructive',
+        title: "Account deletion failed",
+        description: deleteError,
+        variant: "destructive",
       });
       return;
     }
     toast({
-      title: 'Account deleted',
-      description: 'Your account and associated data were deleted.',
+      title: "Account deleted",
+      description: "Your account and associated data were deleted.",
     });
     setConfirmDeleteOpen(false);
     onOpenChange(false);
@@ -113,7 +156,22 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
         <div className="space-y-4 text-sm">
           <div className="rounded-sm border-2 border-border bg-muted/30 p-3 shadow-none">
             <p className="text-xs text-muted-foreground">Signed in as</p>
-            <p className="mt-1 font-medium text-foreground">{user?.email ?? 'Unknown user'}</p>
+            <p className="mt-1 font-medium text-foreground">{user?.email ?? "Unknown user"}</p>
+          </div>
+
+          <div className="rounded-sm border border-border bg-muted/20 p-3">
+            <p className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
+              <MonitorSmartphone className="h-3.5 w-3.5" />
+              This session
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Access token expires (approx.): <span className="font-mono text-foreground">{sessionExpiresLabel}</span>
+            </p>
+            <p id="sign-out-all-sessions-desc" className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              Supabase does not expose a per-device session list to the browser client. To revoke access everywhere
+              (other browsers and devices), use{" "}
+              <strong className="font-medium text-foreground">Sign out all sessions</strong> below.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -125,7 +183,18 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
               disabled={isResetting}
             >
               <KeyRound className="h-4 w-4" />
-              {isResetting ? 'Sending reset link...' : 'Send password reset email'}
+              {isResetting ? "Sending reset link..." : "Send password reset email"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full justify-start gap-2"
+              onClick={() => void signOutThisDevice()}
+              disabled={isSigningOut}
+            >
+              <LogOut className="h-4 w-4" />
+              {isSigningOut ? "Signing out…" : "Sign out this device"}
             </Button>
 
             <Button
@@ -134,20 +203,25 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
               className="w-full justify-start gap-2"
               onClick={() => setConfirmGlobalSignOutOpen(true)}
               disabled={isGlobalSignOut}
+              aria-describedby="sign-out-all-sessions-desc"
             >
               <LogOut className="h-4 w-4" />
-              {isGlobalSignOut ? 'Signing out sessions...' : 'Sign out all sessions'}
+              {isGlobalSignOut ? "Signing out sessions..." : "Sign out all sessions"}
             </Button>
 
+            <span id="delete-account-desc" className="sr-only">
+              Permanently deletes your account and all stored data. This action cannot be undone.
+            </span>
             <Button
               type="button"
               variant="destructive"
               className="w-full justify-start gap-2"
               onClick={() => setConfirmDeleteOpen(true)}
               disabled={isDeleting}
+              aria-describedby="delete-account-desc"
             >
-              <Trash2 className="h-4 w-4" />
-              {isDeleting ? 'Deleting account...' : 'Delete account'}
+              <Trash2 className="h-4 w-4" aria-hidden />
+              {isDeleting ? "Deleting account..." : "Delete account"}
             </Button>
           </div>
 
@@ -166,7 +240,7 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isGlobalSignOut}>Cancel</AlertDialogCancel>
             <AlertDialogAction disabled={isGlobalSignOut} onClick={() => void signOutAllSessions()}>
-              {isGlobalSignOut ? 'Signing out...' : 'Sign out everywhere'}
+              {isGlobalSignOut ? "Signing out..." : "Sign out everywhere"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -194,7 +268,7 @@ export default function AccountSecurityModal({ open, onOpenChange }: AccountSecu
               disabled={!canDelete || isDeleting}
               onClick={() => void handleDeleteAccount()}
             >
-              {isDeleting ? 'Deleting...' : 'Delete account'}
+              {isDeleting ? "Deleting..." : "Delete account"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

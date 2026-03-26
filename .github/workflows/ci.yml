@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  validate-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate migration filenames
+        run: |
+          INVALID=()
+          for f in supabase/migrations/*.sql; do
+            basename=$(basename "$f")
+            if ! [[ "$basename" =~ ^[0-9]{14}_[a-z0-9_]+\.sql$ ]]; then
+              INVALID+=("$basename")
+            fi
+          done
+          if [ ${#INVALID[@]} -gt 0 ]; then
+            echo "ERROR: Invalid migration filename(s) — must match YYYYMMDDHHMMSS_description.sql:"
+            for name in "${INVALID[@]}"; do echo "  $name"; done
+            exit 1
+          fi
+          echo "All migration filenames are valid."
+
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      # TypeScript type check (non-strict; catches regressions without breaking the build)
+      - run: npx tsc --noEmit --project tsconfig.app.json
+      - run: npm run test
+      - run: npm run build
+      - name: Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun --config=lighthouserc.cjs
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || 'placeholder' }}

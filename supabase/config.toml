@@ -1,1 +1,10 @@
-project_id = "bunuoljouiuqooxhutys"
+# Must match the Supabase project in VITE_SUPABASE_URL / `supabase link` (JWTs are invalid across projects).
+project_id = "zxlykniolxlyodzpgqrb"
+
+# Gateway JWT check is disabled so we never send a mistaken Bearer (anon key) from fetchWithAuth
+# when the session is stale — auth is enforced inside the function via supabase.auth.getUser().
+[functions.idea-web-groq]
+verify_jwt = false
+
+[functions.daily-quote]
+verify_jwt = false

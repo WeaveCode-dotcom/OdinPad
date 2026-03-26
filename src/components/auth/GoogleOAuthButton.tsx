@@ -1,15 +1,20 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type Props = {
   disabled: boolean;
   onClick: () => void | Promise<void>;
+  className?: string;
 };
 
-export function GoogleOAuthButton({ disabled, onClick }: Props) {
+export function GoogleOAuthButton({ disabled, onClick, className }: Props) {
   return (
     <Button
       variant="outline"
-      className="w-full gap-2 border-2 border-black bg-white shadow-none"
+      className={cn(
+        "h-12 w-full gap-2 rounded-none border-2 border-black bg-white text-sm font-black uppercase tracking-wide text-black shadow-[5px_5px_0_0_#000] hover:bg-neutral-50",
+        className,
+      )}
       onClick={() => void onClick()}
       disabled={disabled}
       type="button"
@@ -32,7 +37,7 @@ export function GoogleOAuthButton({ disabled, onClick }: Props) {
           fill="#EA4335"
         />
       </svg>
-      Continue with Google
+      Google
     </Button>
   );
 }

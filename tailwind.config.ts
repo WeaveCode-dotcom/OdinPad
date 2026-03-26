@@ -14,21 +14,11 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Archivo Black"', "system-ui", "sans-serif"],
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
-        neo: {
-          bg: "#F5F5F5",
-          cream: "#F5F5F0",
-          indigo: "#2D1B5E",
-          lime: "#D7FF00",
-          sunshine: "#F7C348",
-          zineMint: "#A8E6CF",
-          lavender: "#E0D7FF",
-          mint: "#D7FFE0",
-          peach: "#FFECD7",
-          sky: "#D7F0FF",
+        studio: {
+          cream: "#fdfbf0",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -73,6 +63,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      boxShadow: {
+        brutal: "4px 4px 0 0 rgb(0 0 0 / 0.12)",
+        "brutal-sm": "3px 3px 0 0 rgb(0 0 0 / 0.12)",
+        "brutal-md": "4px 4px 0 0 rgb(0 0 0 / 0.15)",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,107 +1,108 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNovelContext } from '@/contexts/NovelContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { mapPersonalization, WritingGoal, WritingStyle } from '@/lib/personalization';
-import { STORY_FRAMEWORKS } from '@/lib/story-frameworks';
-import { toast } from '@/hooks/use-toast';
-import { trackEvent } from '@/lib/analytics';
-import { rankFrameworkRecommendations, validateAndNormalizeBookCreation } from '@/lib/book-creation';
-import { PageShell } from '@/components/motion/PageShell';
-import { ArtsyPageChrome } from '@/components/layout/AppArtsyDecor';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-type StepId = 'quiz' | 'profile' | 'tour' | 'project';
+import { ArtsyPageChrome } from "@/components/layout/AppArtsyDecor";
+import { PageShell } from "@/components/motion/PageShell";
+import { OnboardingProfileStep } from "@/components/onboarding/OnboardingProfileStep";
+import { OnboardingProjectStep } from "@/components/onboarding/OnboardingProjectStep";
+import { OnboardingQuizStep } from "@/components/onboarding/OnboardingQuizStep";
+import { OnboardingSkipDialog } from "@/components/onboarding/OnboardingSkipDialog";
+import { OnboardingTourStep } from "@/components/onboarding/OnboardingTourStep";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNovelContext } from "@/contexts/NovelContext";
+import { toast } from "@/hooks/use-toast";
+import { trackEvent } from "@/lib/analytics";
+import { bookCreateMetadataAnalytics, validateAndNormalizeBookCreation } from "@/lib/book-creation";
+import type { BookAudience, BookPov, BookTense, WordCountPresetId } from "@/lib/book-metadata";
+import { mapPersonalization, WritingGoal, WritingStyle } from "@/lib/personalization";
+import { type BookSeriesRow, fetchBookSeriesForUser } from "@/lib/series-service";
+
+type StepId = "quiz" | "profile" | "tour" | "project";
 type ProfileModalStep = 0 | 1 | 2;
 
-const STEPS: StepId[] = ['quiz', 'profile', 'tour', 'project'];
-
-const STYLES: Array<{ value: WritingStyle; label: string }> = [
-  { value: 'plotter', label: 'Plotter - love structure' },
-  { value: 'pantser', label: 'Pantser - write freely' },
-  { value: 'hybrid', label: 'Hybrid' },
-];
-
-const GOALS: Array<{ value: WritingGoal; label: string }> = [
-  { value: 'finish-first-draft', label: 'Finish first draft' },
-  { value: 'daily-word-count', label: 'Hit daily word count' },
-  { value: 'build-world', label: 'Build world/characters' },
-  { value: 'overcome-block', label: 'Overcome writer block' },
-];
-
-const GENRES = ['Fantasy', 'Romance', 'Mystery', 'Literary', 'Sci-Fi', 'Thriller', 'Historical'];
+const STEPS: StepId[] = ["quiz", "profile", "tour", "project"];
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const {
-    preferences,
-    onboardingCompleted,
-    updatePreferences,
-    profile,
-    updateProfile,
-  } = useAuth();
+  const { user, preferences, onboardingCompleted, updatePreferences, profile, updateProfile } = useAuth();
   const { addNovelWithOptions, novels } = useNovelContext();
 
-  const initialStep = (preferences?.onboarding_step as StepId | undefined) ?? 'quiz';
-  const [step, setStep] = useState<StepId>(STEPS.includes(initialStep) ? initialStep : 'quiz');
+  const initialStep = (preferences?.onboarding_step as StepId | undefined) ?? "quiz";
+  const [step, setStep] = useState<StepId>(STEPS.includes(initialStep) ? initialStep : "quiz");
   const [saving, setSaving] = useState(false);
 
-  const [writingStyle, setWritingStyle] = useState<WritingStyle>((preferences?.writing_style as WritingStyle) ?? 'hybrid');
+  // Quiz state
+  const [writingStyle, setWritingStyle] = useState<WritingStyle>(
+    (preferences?.writing_style as WritingStyle) ?? "hybrid",
+  );
   const [genres, setGenres] = useState<string[]>(preferences?.genres ?? []);
-  const [goal, setGoal] = useState<WritingGoal>((preferences?.primary_goal as WritingGoal) ?? 'finish-first-draft');
+  const [goal, setGoal] = useState<WritingGoal>((preferences?.primary_goal as WritingGoal) ?? "finish-first-draft");
 
+  // Profile state
   const [profileModalStep, setProfileModalStep] = useState<ProfileModalStep>(0);
-  const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
-  const [bio, setBio] = useState(profile?.bio ?? '');
-  const [theme, setTheme] = useState(preferences?.theme ?? 'dark');
+  const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
+  const [bio, setBio] = useState(profile?.bio ?? "");
+  const [theme, setTheme] = useState(preferences?.theme ?? "light");
   const [fontSize, setFontSize] = useState(String(preferences?.font_size ?? 1));
   const [dailyGoal, setDailyGoal] = useState(String(preferences?.daily_word_goal ?? 500));
 
-  const [title, setTitle] = useState('');
-  const [projectGenre, setProjectGenre] = useState('');
-  const [premise, setPremise] = useState('');
-  const [targetWordCount, setTargetWordCount] = useState('');
-  const [frameworkId, setFrameworkId] = useState(preferences?.default_framework_id ?? 'three-act');
+  // Project state
+  const [title, setTitle] = useState("");
+  const [projectGenre, setProjectGenre] = useState("");
+  const [premise, setPremise] = useState("");
+  const [targetWordCount, setTargetWordCount] = useState("");
+  const [frameworkId, setFrameworkId] = useState(preferences?.default_framework_id ?? "three-act");
+  const [projectAdvancedOpen, setProjectAdvancedOpen] = useState(false);
+  const [newSubtitle, setNewSubtitle] = useState("");
+  const [newPenName, setNewPenName] = useState("");
+  const [newLogline, setNewLogline] = useState("");
+  const [newComparables, setNewComparables] = useState("");
+  const [newSecondaryGenres, setNewSecondaryGenres] = useState<string[]>([]);
+  const [newWordCountPreset, setNewWordCountPreset] = useState<WordCountPresetId | "">("");
+  const [newSeriesScope, setNewSeriesScope] = useState<"standalone" | "series">("standalone");
+  const [newSeriesId, setNewSeriesId] = useState("");
+  const [newSeriesPosition, setNewSeriesPosition] = useState("");
+  const [newAudience, setNewAudience] = useState<BookAudience | "">("");
+  const [newContentWarnings, setNewContentWarnings] = useState<string[]>([]);
+  const [newDefaultPov, setNewDefaultPov] = useState<BookPov | "">("");
+  const [newDefaultTense, setNewDefaultTense] = useState<BookTense | "">("");
+  const [newCoverImageDataUrl, setNewCoverImageDataUrl] = useState("");
+  const [seriesRows, setSeriesRows] = useState<BookSeriesRow[]>([]);
+
+  // Skip dialog state
+  const [skipSurveyOpen, setSkipSurveyOpen] = useState(false);
+  const [skipReasonChip, setSkipReasonChip] = useState<string | null>(null);
+  const [skipReasonOther, setSkipReasonOther] = useState("");
 
   useEffect(() => {
-    if (onboardingCompleted) navigate('/');
+    if (onboardingCompleted) navigate("/");
   }, [onboardingCompleted, navigate]);
 
   useEffect(() => {
-    trackEvent('onboarding_started', { step });
+    trackEvent("onboarding_started", { step });
   }, [step]);
 
   useEffect(() => {
     if (!projectGenre && genres.length > 0) setProjectGenre(genres[0]);
   }, [genres, projectGenre]);
 
-  const progress = useMemo(() => ((STEPS.indexOf(step) + 1) / STEPS.length) * 100, [step]);
-  const frameworkRecommendations = useMemo(
-    () =>
-      rankFrameworkRecommendations({
-        selectedGenre: projectGenre || genres[0],
-        preferredGenres: genres,
-        writingStyle,
-        primaryGoal: goal,
-        fallbackFrameworkId: frameworkId,
-      }),
-    [frameworkId, genres, goal, projectGenre, writingStyle],
-  );
+  useEffect(() => {
+    if (step !== "project" || !user?.id) return;
+    void fetchBookSeriesForUser(user.id)
+      .then(setSeriesRows)
+      .catch(() => setSeriesRows([]));
+  }, [step, user?.id]);
+
+  const progress = ((STEPS.indexOf(step) + 1) / STEPS.length) * 100;
 
   const persistStep = async (next: StepId) => {
     setSaving(true);
     const result = await updatePreferences({ onboarding_step: next });
     setSaving(false);
     if (result.error) {
-      toast({ title: 'Could not save progress', description: result.error, variant: 'destructive' });
+      toast({ title: "Could not save progress", description: result.error, variant: "destructive" });
       return false;
     }
     return true;
@@ -113,25 +114,29 @@ export default function Onboarding() {
   };
 
   const skipForNow = async () => {
-    const result = await updatePreferences({ onboarding_deferred: true, onboarding_step: step });
+    const reason = (skipReasonOther.trim() || skipReasonChip || "").trim() || null;
+    const result = await updatePreferences({
+      onboarding_deferred: true,
+      onboarding_step: step,
+      onboarding_skip_reason: reason,
+    });
     if (result.error) {
-      toast({ title: 'Could not skip onboarding', description: result.error, variant: 'destructive' });
+      toast({ title: "Could not skip onboarding", description: result.error, variant: "destructive" });
       return;
     }
-    trackEvent('onboarding_skipped', { step });
-    navigate('/');
+    trackEvent("onboarding_skipped", { step, reason: reason ?? "unspecified" });
+    setSkipSurveyOpen(false);
+    setSkipReasonChip(null);
+    setSkipReasonOther("");
+    navigate("/");
   };
 
   const submitQuiz = async () => {
     if (genres.length === 0) {
-      toast({ title: 'Select at least one genre', variant: 'destructive' });
+      toast({ title: "Select at least one genre", variant: "destructive" });
       return;
     }
-    const mapped = mapPersonalization({
-      writingStyle,
-      genres,
-      primaryGoal: goal,
-    });
+    const mapped = mapPersonalization({ writingStyle, genres, primaryGoal: goal });
     const result = await updatePreferences({
       writing_stage: null,
       writing_style: writingStyle,
@@ -141,30 +146,30 @@ export default function Onboarding() {
       preferred_workspace_mode: mapped.preferredWorkspaceMode,
     });
     if (result.error) {
-      toast({ title: 'Could not save quiz answers', description: result.error, variant: 'destructive' });
+      toast({ title: "Could not save quiz answers", description: result.error, variant: "destructive" });
       return;
     }
     setFrameworkId(mapped.recommendedFrameworkId);
-    trackEvent('onboarding_quiz_completed', { writingStyle, primaryGoal: goal });
-    await goTo('profile');
+    trackEvent("onboarding_quiz_completed", { writingStyle, primaryGoal: goal });
+    await goTo("profile");
   };
 
   const nextProfileModal = async () => {
     if (profileModalStep === 0 && !displayName.trim()) {
-      toast({ title: 'Display name is required', variant: 'destructive' });
+      toast({ title: "Display name is required", variant: "destructive" });
       return;
     }
     if (profileModalStep === 1) {
       const parsed = Number(fontSize);
       if (!Number.isFinite(parsed) || parsed < 0.8 || parsed > 1.6) {
-        toast({ title: 'Font size must be between 0.8 and 1.6', variant: 'destructive' });
+        toast({ title: "Font size must be between 0.8 and 1.6", variant: "destructive" });
         return;
       }
     }
     if (profileModalStep === 2) {
       const parsed = Number(dailyGoal);
       if (!Number.isFinite(parsed) || parsed < 100) {
-        toast({ title: 'Daily word goal must be at least 100', variant: 'destructive' });
+        toast({ title: "Daily word goal must be at least 100", variant: "destructive" });
         return;
       }
     }
@@ -179,7 +184,7 @@ export default function Onboarding() {
       bio: bio.trim() || null,
     });
     if (profileResult.error) {
-      toast({ title: 'Could not save profile', description: profileResult.error, variant: 'destructive' });
+      toast({ title: "Could not save profile", description: profileResult.error, variant: "destructive" });
       return;
     }
 
@@ -189,272 +194,263 @@ export default function Onboarding() {
       daily_word_goal: Number(dailyGoal),
     });
     if (preferenceResult.error) {
-      toast({ title: 'Could not save preferences', description: preferenceResult.error, variant: 'destructive' });
+      toast({ title: "Could not save preferences", description: preferenceResult.error, variant: "destructive" });
       return;
     }
 
-    trackEvent('onboarding_profile_completed', { theme });
-    await goTo('tour');
+    trackEvent("onboarding_profile_completed", { theme });
+    await goTo("tour");
   };
 
   const launchTour = async () => {
     const result = await updatePreferences({
       onboarding_deferred: false,
-      onboarding_step: 'tour',
+      onboarding_step: "tour",
       guided_tour_completed_at: null,
       checklist_opening_scene_done: false,
       checklist_character_done: false,
       checklist_goal_done: false,
     });
     if (result.error) {
-      toast({ title: 'Could not launch tour', description: result.error, variant: 'destructive' });
+      toast({ title: "Could not launch tour", description: result.error, variant: "destructive" });
       return;
     }
 
     if (novels.length === 0) {
-      addNovelWithOptions('Guided Tour Project', displayName.trim() || profile?.display_name || 'Anonymous', {
-        genre: genres[0] || 'General',
+      addNovelWithOptions("Guided Tour Project", displayName.trim() || profile?.display_name || "Anonymous", {
+        genre: genres[0] || "General",
         frameworkId,
-        status: 'drafting',
+        status: "drafting",
       });
     }
 
-    trackEvent('tour_launched', { source: 'onboarding' });
-    navigate('/');
+    trackEvent("tour_launched", { source: "onboarding" });
+    navigate("/");
   };
 
   const skipTourFromOnboarding = async () => {
     const result = await updatePreferences({
       onboarding_deferred: true,
-      onboarding_step: 'tour',
+      onboarding_step: "tour",
     });
     if (result.error) {
-      toast({ title: 'Could not skip tour', description: result.error, variant: 'destructive' });
+      toast({ title: "Could not skip tour", description: result.error, variant: "destructive" });
       return;
     }
-    trackEvent('tour_skipped', { source: 'onboarding' });
-    navigate('/');
+    trackEvent("tour_skipped", { source: "onboarding" });
+    navigate("/");
   };
 
   const createFirstProject = async () => {
+    const seriesTitleById = new Map(seriesRows.map((s) => [s.id, s.title]));
     const validation = validateAndNormalizeBookCreation(
       {
         title,
-        author: displayName.trim() || profile?.display_name || 'Anonymous',
-        genre: projectGenre || genres[0] || '',
+        author: displayName.trim() || profile?.display_name || "Anonymous",
+        genre: projectGenre || genres[0] || "",
         premise,
         targetWordCount,
         frameworkId,
-        status: 'drafting',
+        status: "drafting",
+        subtitle: newSubtitle,
+        penName: newPenName,
+        logline: newLogline,
+        comparables: newComparables,
+        secondaryGenres: newSecondaryGenres,
+        wordCountPreset: newWordCountPreset || undefined,
+        seriesMode: newSeriesScope,
+        seriesId: newSeriesScope === "standalone" ? undefined : newSeriesId || undefined,
+        seriesPosition: newSeriesPosition,
+        audience: newAudience,
+        contentWarnings: newContentWarnings,
+        defaultPov: newDefaultPov,
+        defaultTense: newDefaultTense,
+        coverImageDataUrl: newCoverImageDataUrl,
       },
-      novels.map((novel) => novel.title),
+      novels.map((novel) => ({ title: novel.title, seriesId: novel.seriesId })),
+      seriesTitleById,
     );
     if (validation.warnings[0]) {
       toast({ title: validation.warnings[0] });
     }
     if (validation.errors[0]) {
-      toast({ title: validation.errors[0], variant: 'destructive' });
+      toast({ title: validation.errors[0], variant: "destructive" });
       return;
     }
 
-    trackEvent('book_create_submitted', {
-      source: 'onboarding',
+    trackEvent("book_create_submitted", {
+      source: "onboarding",
       frameworkId: validation.normalized.frameworkId,
       hasPremise: Boolean(validation.normalized.premise),
       hasTargetWordCount: Boolean(validation.normalized.targetWordCount),
+      hasSeries: Boolean(validation.normalized.seriesId),
     });
-    addNovelWithOptions(validation.normalized.title, validation.normalized.author, {
-      genre: validation.normalized.genre,
-      premise: validation.normalized.premise,
-      targetWordCount: validation.normalized.targetWordCount,
-      frameworkId: validation.normalized.frameworkId,
-      status: 'drafting',
+    const n = validation.normalized;
+    addNovelWithOptions(n.title, n.author, {
+      genre: n.genre,
+      premise: n.premise,
+      targetWordCount: n.targetWordCount,
+      frameworkId: n.frameworkId,
+      status: "drafting",
+      penName: n.penName,
+      subtitle: n.subtitle,
+      secondaryGenres: n.secondaryGenres,
+      logline: n.logline,
+      comparables: n.comparables,
+      wordCountPreset: n.wordCountPreset,
+      seriesId: n.seriesId,
+      seriesTitle: n.seriesTitle,
+      seriesPosition: n.seriesPosition,
+      audience: n.audience,
+      contentWarnings: n.contentWarnings,
+      defaultPov: n.defaultPov,
+      defaultTense: n.defaultTense,
+      coverImageDataUrl: n.coverImageDataUrl,
     });
-    trackEvent('book_create_succeeded', {
-      source: 'onboarding',
+    trackEvent("book_create_succeeded", {
+      source: "onboarding",
       frameworkId: validation.normalized.frameworkId,
+      ...bookCreateMetadataAnalytics(validation.normalized),
     });
     const completeResult = await updatePreferences({
       onboarding_deferred: false,
       onboarding_completed_at: new Date().toISOString(),
-      onboarding_step: 'project',
+      onboarding_step: "project",
+      first_run_novel_created: true,
+      first_run_write_opened: true,
     });
     if (completeResult.error) {
-      toast({ title: 'Could not complete onboarding', description: completeResult.error, variant: 'destructive' });
+      toast({ title: "Could not complete onboarding", description: completeResult.error, variant: "destructive" });
       return;
     }
-    trackEvent('first_project_created', { frameworkId, source: 'onboarding' });
-    trackEvent('onboarding_completed', { flow: 'quiz-profile-tour-project' });
-    navigate('/');
+    trackEvent("first_project_created", { frameworkId, source: "onboarding" });
+    trackEvent("onboarding_completed", { flow: "quiz-profile-tour-project" });
+    navigate("/");
   };
 
   return (
-    <PageShell className="page-viewport w-full overflow-y-auto neo-grid-light">
+    <PageShell className="page-viewport w-full overflow-y-auto bg-background">
       <ArtsyPageChrome>
-      <div className="relative w-full max-w-none border-2 border-black bg-white p-3 shadow-none sm:p-6 md:rotate-[0.15deg] motion-reduce:rotate-0">
-        <span className="absolute -right-1 -top-2 inline-block rotate-3 border-2 border-black bg-neo-lime px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-black">
-          Onboarding
-        </span>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-black uppercase leading-none tracking-tight text-neo-indigo md:text-3xl">Welcome to OdinPad</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Four messy-beautiful steps to your workspace.</p>
-          </div>
-          <Button variant="outline" className="shrink-0 -rotate-1 border-2 border-black" onClick={() => void skipForNow()}>I&apos;ll explore myself</Button>
-        </div>
-        <Progress value={progress} className="mb-6 h-2 max-w-md" />
-
-        {step === 'quiz' && (
-          <div className="space-y-5">
-            <h2 className="text-base font-semibold text-foreground">Personalization quiz</h2>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Preferred style?</p>
-              <div className="grid grid-cols-1 gap-2">
-                {STYLES.map(item => (
-                  <Button key={item.value} type="button" variant={writingStyle === item.value ? 'default' : 'outline'} onClick={() => setWritingStyle(item.value)}>
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">Genre(s) you write?</p>
-              <div className="grid grid-cols-3 gap-2">
-                {GENRES.map(item => {
-                  const selected = genres.includes(item);
-                  return (
-                    <Button key={item} type="button" variant={selected ? 'default' : 'outline'} onClick={() => setGenres(prev => selected ? prev.filter(v => v !== item) : [...prev, item])}>
-                      {item}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">What is your current goal/aim?</p>
-              <div className="grid grid-cols-2 gap-2">
-                {GOALS.map(item => (
-                  <Button key={item.value} type="button" variant={goal === item.value ? 'default' : 'outline'} onClick={() => setGoal(item.value)}>
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <Button onClick={() => void submitQuiz()} disabled={saving}>Continue</Button>
-          </div>
-        )}
-
-        {step === 'profile' && (
-          <div className="space-y-4">
-            <h2 className="text-base font-semibold text-foreground">Complete your profile</h2>
-            <p className="text-sm text-muted-foreground">We will quickly complete your writer profile in three modals.</p>
-            <Dialog open>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    {profileModalStep === 0 && 'Profile basics'}
-                    {profileModalStep === 1 && 'Writing preferences'}
-                    {profileModalStep === 2 && 'Goal target'}
-                  </DialogTitle>
-                </DialogHeader>
-
-                {profileModalStep === 0 && (
-                  <div className="space-y-3">
-                    <Input value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Display / pen name" />
-                    <Input value={bio} onChange={e => setBio(e.target.value)} placeholder="Short writer bio (optional)" />
-                  </div>
-                )}
-
-                {profileModalStep === 1 && (
-                  <div className="space-y-3">
-                    <Input value={theme} onChange={e => setTheme(e.target.value)} placeholder="Theme (dark/light/sepia)" />
-                    <Input value={fontSize} onChange={e => setFontSize(e.target.value)} placeholder="Font size (0.8 to 1.6)" />
-                  </div>
-                )}
-
-                {profileModalStep === 2 && (
-                  <div className="space-y-3">
-                    <Input value={dailyGoal} onChange={e => setDailyGoal(e.target.value)} placeholder="Daily word goal" />
-                  </div>
-                )}
-
-                <div className="mt-2 flex items-center justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() => setProfileModalStep(v => (v > 0 ? ((v - 1) as ProfileModalStep) : v))}
-                    disabled={profileModalStep === 0}
-                  >
-                    Back
-                  </Button>
-                  <Button onClick={() => void nextProfileModal()}>
-                    {profileModalStep === 2 ? 'Save and Continue' : 'Next'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
-
-        {step === 'tour' && (
-          <div className="space-y-4">
-            <h2 className="text-base font-semibold text-foreground">Feature tour</h2>
-            <p className="text-sm text-muted-foreground">
-              You will get a full in-app tour covering writing modes, editor, codex, settings, review, and dashboard return.
-            </p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>- Explore mode switcher (ideas, plan, write, review)</li>
-              <li>- Write in the editor and link codex references</li>
-              <li>- Add a character in codex</li>
-              <li>- Visit settings and return to dashboard</li>
-            </ul>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => void skipTourFromOnboarding()}>Skip tour</Button>
-              <Button onClick={() => void launchTour()}>Start tour</Button>
-            </div>
-          </div>
-        )}
-
-        {step === 'project' && (
-          <div className="space-y-4">
-            <h2 className="text-base font-semibold text-foreground">Create your first project</h2>
-            <p className="text-sm text-muted-foreground">Now that you completed the tour, create your first real project.</p>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Project title" />
-            <Input value={projectGenre} onChange={e => setProjectGenre(e.target.value)} placeholder="Genre" />
-            <Input value={premise} onChange={e => setPremise(e.target.value)} placeholder="One-sentence premise" />
-            <Input value={targetWordCount} onChange={e => setTargetWordCount(e.target.value)} placeholder="Target word count (optional)" />
+        <div className="relative w-full max-w-none border border-border bg-white p-3 shadow-none sm:p-6 md:rotate-[0.15deg] motion-reduce:rotate-0">
+          <span className="absolute -right-1 -top-2 inline-block rotate-3 border border-border bg-primary px-2 py-0.5 text-[10px] font-black uppercase tracking-widest text-black">
+            Onboarding
+          </span>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="mb-2 text-sm text-muted-foreground">Quick-start template</p>
-              <div className="grid grid-cols-2 gap-2">
-                {STORY_FRAMEWORKS.map(framework => (
-                  <Button
-                    key={framework.id}
-                    type="button"
-                    variant={frameworkId === framework.id ? 'default' : 'outline'}
-                    onClick={() => {
-                      setFrameworkId(framework.id);
-                      trackEvent('book_create_template_selected', { source: 'onboarding', frameworkId: framework.id });
-                    }}
-                  >
-                    {framework.shortName}
-                  </Button>
-                ))}
-              </div>
-              {frameworkRecommendations.length > 0 && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Recommended templates: {frameworkRecommendations.slice(0, 3).map(item => {
-                    const match = STORY_FRAMEWORKS.find(framework => framework.id === item.frameworkId);
-                    return match?.shortName ?? item.frameworkId;
-                  }).join(', ')}
-                </p>
-              )}
+              <h1 className="text-2xl font-black uppercase leading-none tracking-tight text-foreground md:text-3xl">
+                Welcome to OdinPad
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">Four messy-beautiful steps to your workspace.</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => void goTo('tour')}>Back</Button>
-              <Button onClick={() => void createFirstProject()} disabled={saving}>Create project</Button>
-            </div>
+            <Button
+              variant="outline"
+              className="shrink-0 -rotate-1 border border-border"
+              onClick={() => setSkipSurveyOpen(true)}
+            >
+              I&apos;ll explore myself
+            </Button>
           </div>
-        )}
-      </div>
+          <Progress value={progress} className="mb-6 h-2 max-w-md" />
+
+          {step === "quiz" && (
+            <OnboardingQuizStep
+              writingStyle={writingStyle}
+              setWritingStyle={setWritingStyle}
+              genres={genres}
+              setGenres={setGenres}
+              goal={goal}
+              setGoal={setGoal}
+              saving={saving}
+              onSubmit={() => void submitQuiz()}
+            />
+          )}
+
+          {step === "profile" && (
+            <OnboardingProfileStep
+              profileModalStep={profileModalStep}
+              displayName={displayName}
+              setDisplayName={setDisplayName}
+              bio={bio}
+              setBio={setBio}
+              theme={theme}
+              setTheme={setTheme}
+              fontSize={fontSize}
+              setFontSize={setFontSize}
+              dailyGoal={dailyGoal}
+              setDailyGoal={setDailyGoal}
+              onNext={() => void nextProfileModal()}
+              onBack={() => setProfileModalStep((v) => (v > 0 ? ((v - 1) as ProfileModalStep) : v))}
+            />
+          )}
+
+          {step === "tour" && (
+            <OnboardingTourStep onLaunch={() => void launchTour()} onSkip={() => void skipTourFromOnboarding()} />
+          )}
+
+          {step === "project" && (
+            <OnboardingProjectStep
+              title={title}
+              setTitle={setTitle}
+              projectGenre={projectGenre}
+              setProjectGenre={setProjectGenre}
+              premise={premise}
+              setPremise={setPremise}
+              targetWordCount={targetWordCount}
+              setTargetWordCount={setTargetWordCount}
+              frameworkId={frameworkId}
+              setFrameworkId={setFrameworkId}
+              projectAdvancedOpen={projectAdvancedOpen}
+              setProjectAdvancedOpen={setProjectAdvancedOpen}
+              newSubtitle={newSubtitle}
+              setNewSubtitle={setNewSubtitle}
+              newPenName={newPenName}
+              setNewPenName={setNewPenName}
+              newLogline={newLogline}
+              setNewLogline={setNewLogline}
+              newComparables={newComparables}
+              setNewComparables={setNewComparables}
+              newSecondaryGenres={newSecondaryGenres}
+              setNewSecondaryGenres={setNewSecondaryGenres}
+              newWordCountPreset={newWordCountPreset}
+              setNewWordCountPreset={setNewWordCountPreset}
+              newSeriesScope={newSeriesScope}
+              setNewSeriesScope={setNewSeriesScope}
+              newSeriesId={newSeriesId}
+              setNewSeriesId={setNewSeriesId}
+              newSeriesPosition={newSeriesPosition}
+              setNewSeriesPosition={setNewSeriesPosition}
+              newAudience={newAudience}
+              setNewAudience={setNewAudience}
+              newContentWarnings={newContentWarnings}
+              setNewContentWarnings={setNewContentWarnings}
+              newDefaultPov={newDefaultPov}
+              setNewDefaultPov={setNewDefaultPov}
+              newDefaultTense={newDefaultTense}
+              setNewDefaultTense={setNewDefaultTense}
+              newCoverImageDataUrl={newCoverImageDataUrl}
+              setNewCoverImageDataUrl={setNewCoverImageDataUrl}
+              userId={user?.id}
+              genres={genres}
+              writingStyle={writingStyle}
+              goal={goal}
+              seriesRows={seriesRows}
+              novels={novels}
+              saving={saving}
+              onBack={() => void goTo("tour")}
+              onSubmit={() => void createFirstProject()}
+            />
+          )}
+        </div>
+
+        <OnboardingSkipDialog
+          open={skipSurveyOpen}
+          onOpenChange={setSkipSurveyOpen}
+          skipReasonChip={skipReasonChip}
+          setSkipReasonChip={setSkipReasonChip}
+          skipReasonOther={skipReasonOther}
+          setSkipReasonOther={setSkipReasonOther}
+          onConfirm={() => void skipForNow()}
+        />
       </ArtsyPageChrome>
     </PageShell>
   );

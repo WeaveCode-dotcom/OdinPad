@@ -1,0 +1,2 @@
+npx prettier --check . --ignore-unknown 2>/dev/null || npx prettier --write . --ignore-unknown
+npx tsc --noEmit --incremental --tsBuildInfoFile .tsbuildinfo --project tsconfig.app.json

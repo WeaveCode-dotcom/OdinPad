@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 
 interface GuidedTourOverlayProps {
   selector: string;
@@ -46,11 +47,11 @@ export default function GuidedTourOverlay({
     };
 
     updateRect();
-    window.addEventListener('resize', updateRect);
-    window.addEventListener('scroll', updateRect, true);
+    window.addEventListener("resize", updateRect);
+    window.addEventListener("scroll", updateRect, true);
     return () => {
-      window.removeEventListener('resize', updateRect);
-      window.removeEventListener('scroll', updateRect, true);
+      window.removeEventListener("resize", updateRect);
+      window.removeEventListener("scroll", updateRect, true);
     };
   }, [selector]);
 
@@ -79,12 +80,18 @@ export default function GuidedTourOverlay({
         className="absolute w-[340px] rounded-sm border-2 border-border bg-card p-4 shadow-none"
         style={cardPosition}
       >
-        <p className="text-xs text-muted-foreground">Guided tour {stepIndex + 1}/{stepCount}</p>
+        <p className="text-xs text-muted-foreground">
+          Guided tour {stepIndex + 1}/{stepCount}
+        </p>
         <h3 className="mt-1 text-sm font-semibold text-foreground">{title}</h3>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
         <div className="mt-3 flex items-center justify-between">
-          <Button size="sm" variant="ghost" onClick={onSkip}>Skip tour</Button>
-          <Button size="sm" onClick={onNext}>Next</Button>
+          <Button size="sm" variant="ghost" onClick={onSkip}>
+            Skip tour
+          </Button>
+          <Button size="sm" onClick={onNext}>
+            Next
+          </Button>
         </div>
       </div>
     </div>

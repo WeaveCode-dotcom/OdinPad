@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "date": "2026-03-23",
+  "items": [
+    "Command palette (⌘K / Ctrl+K) for navigation and search",
+    "First-run checklist, help & accessibility pages, and changelog",
+    "Manuscript and Idea Web export to Markdown; Word import preview",
+    "Offline idea queue, connectivity banner, and multi-tab conflict notice",
+    "Write view reading mode, focus mode, and save status",
+    "Sprint timer now saves session history",
+    "Focus mode shows Esc-to-exit hint",
+    "Novel cards now show arc progress rings",
+    "Codex panel can be pinned as a persistent sidebar",
+    "Settings has a dedicated AI tab"
+  ]
+}

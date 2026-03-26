@@ -1,4 +1,4 @@
-const PREFIX = 'odinpad_words_today_';
+const PREFIX = "odinpad_words_today_";
 
 export function getTodayKey(): string {
   return `${PREFIX}${new Date().toISOString().slice(0, 10)}`;
@@ -6,7 +6,7 @@ export function getTodayKey(): string {
 
 export function getWordsToday(): number {
   try {
-    return Number(localStorage.getItem(getTodayKey()) || '0');
+    return Number(localStorage.getItem(getTodayKey()) || "0");
   } catch {
     return 0;
   }

@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
 
@@ -37,6 +38,13 @@ const DrawerContent = React.forwardRef<
       {...props}
     >
       <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+      <DrawerPrimitive.Close
+        aria-label="Close"
+        className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        <X className="h-4 w-4" aria-hidden />
+        <span className="sr-only">Close</span>
+      </DrawerPrimitive.Close>
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
@@ -75,13 +83,13 @@ DrawerDescription.displayName = DrawerPrimitive.Description.displayName;
 
 export {
   Drawer,
-  DrawerPortal,
-  DrawerOverlay,
-  DrawerTrigger,
   DrawerClose,
   DrawerContent,
-  DrawerHeader,
-  DrawerFooter,
-  DrawerTitle,
   DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerPortal,
+  DrawerTitle,
+  DrawerTrigger,
 };

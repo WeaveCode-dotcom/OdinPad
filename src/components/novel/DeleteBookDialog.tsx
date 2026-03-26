@@ -6,11 +6,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
-import { useNovelContext } from '@/contexts/NovelContext';
-import { trackEvent } from '@/lib/analytics';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { useNovelContext } from "@/contexts/NovelContext";
+import { toast } from "@/hooks/use-toast";
+import { useUndoableAction } from "@/hooks/useUndoableAction";
+import { trackEvent } from "@/lib/analytics";
 
 interface DeleteBookDialogProps {
   novelId: string | null;
@@ -19,21 +20,21 @@ interface DeleteBookDialogProps {
   source?: string;
 }
 
-export default function DeleteBookDialog({ novelId, open, onOpenChange, source = 'dashboard' }: DeleteBookDialogProps) {
+export default function DeleteBookDialog({ novelId, open, onOpenChange, source = "dashboard" }: DeleteBookDialogProps) {
   const { deleteNovel } = useNovelContext();
 
   const handleDelete = async () => {
     if (!novelId) return;
     try {
       await deleteNovel(novelId);
-      trackEvent('book_deleted', { source });
-      toast({ title: 'Book deleted' });
+      trackEvent("book_deleted", { source });
+      toast({ title: "Book deleted" });
       onOpenChange(false);
     } catch {
       toast({
-        title: 'Could not delete book',
-        description: 'Check your connection and try again.',
-        variant: 'destructive',
+        title: "Could not delete book",
+        description: "Check your connection and try again.",
+        variant: "destructive",
       });
     }
   };
@@ -43,13 +44,14 @@ export default function DeleteBookDialog({ novelId, open, onOpenChange, source =
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete this book?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This removes the project from your library and cloud storage. This cannot be undone.
+          <AlertDialogDescription id="delete-book-desc">
+            This permanently deletes the project from the database and your cloud library (hard delete). Local backups
+            in your browser are not kept. This cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <Button variant="destructive" type="button" onClick={() => void handleDelete()}>
+          <Button variant="destructive" type="button" onClick={handleDelete} aria-describedby="delete-book-desc">
             Delete
           </Button>
         </AlertDialogFooter>

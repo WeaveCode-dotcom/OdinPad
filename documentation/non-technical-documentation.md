@@ -5,6 +5,7 @@
 OdinPad is a writing operating system for fiction authors. It supports writers from idea stage to final revision inside one guided workspace.
 
 It is designed for:
+
 - plotters,
 - pantsers,
 - hybrid writers.
@@ -29,6 +30,12 @@ On first login, users go through a guided onboarding flow (with skip option):
 The flow is intentionally short, action-focused, and designed to move users quickly to first writing value.
 The in-app tour overlay now covers more feature surfaces (planning, writing, codex, settings, review, and dashboard return).
 If a user skips the tour from onboarding, they are sent to the dashboard. If they skip while already in the workspace, they stay on the current page.
+
+### Idea Web inbox (`/inbox`)
+
+- A dedicated **Idea Web** page lists all captured sparks across projects.
+- Users can **search**, **filter** (project, status, tags, sort), switch **list / grid / map**, and use **Ideation tools** (Groq-assisted editorial prompts) on selected ideas.
+- **Harvest** promotes selected ideas into a project; the **map** view reflects the same filters as the list when viewing the full web.
 
 ### Personalized Writer Dashboard
 

@@ -1,9 +1,10 @@
+import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+
 import { ArtsyPageChrome } from "@/components/layout/AppArtsyDecor";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 type CallbackState = "loading" | "success" | "error";
 
@@ -71,37 +72,37 @@ export default function AuthCallback() {
   }, [providerError, errorText, navigate]);
 
   return (
-    <div className="page-viewport flex w-full items-center justify-center bg-neo-bg px-2 py-10">
+    <div className="page-viewport flex w-full items-center justify-center bg-background px-2 py-10">
       <ArtsyPageChrome>
-      <div className="w-full max-w-md rotate-1 border-2 border-black bg-neo-sky/40 p-5 text-center motion-reduce:rotate-0 sm:px-6">
-        {state === "loading" && (
-          <div className="mb-3 flex items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          </div>
-        )}
-        {state === "success" && (
-          <div className="mb-3 flex items-center justify-center">
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-          </div>
-        )}
-        {state === "error" && (
-          <div className="mb-3 flex items-center justify-center">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-          </div>
-        )}
+        <div className="w-full max-w-md rotate-1 border border-border bg-sky-50/40 p-5 text-center motion-reduce:rotate-0 sm:px-6">
+          {state === "loading" && (
+            <div className="mb-3 flex items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            </div>
+          )}
+          {state === "success" && (
+            <div className="mb-3 flex items-center justify-center">
+              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+            </div>
+          )}
+          {state === "error" && (
+            <div className="mb-3 flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            </div>
+          )}
 
-        <h1 className="mb-2 text-lg font-semibold text-foreground">Authentication Callback</h1>
-        <p className="text-sm text-muted-foreground">{message}</p>
+          <h1 className="mb-2 text-lg font-semibold text-foreground">Authentication Callback</h1>
+          <p className="text-sm text-muted-foreground">{message}</p>
 
-        {state === "error" && (
-          <div className="mt-5 flex justify-center gap-2">
-            <Button variant="outline" onClick={() => navigate("/")}>
-              Return Home
-            </Button>
-            <Button onClick={() => window.location.reload()}>Try Again</Button>
-          </div>
-        )}
-      </div>
+          {state === "error" && (
+            <div className="mt-5 flex justify-center gap-2">
+              <Button variant="outline" onClick={() => navigate("/")}>
+                Return Home
+              </Button>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
+            </div>
+          )}
+        </div>
       </ArtsyPageChrome>
     </div>
   );

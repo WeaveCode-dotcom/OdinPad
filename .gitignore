@@ -25,3 +25,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# TypeScript incremental build cache
+.tsbuildinfo
+
+# Claude Code local settings (personal, not project config)
+.claude/
