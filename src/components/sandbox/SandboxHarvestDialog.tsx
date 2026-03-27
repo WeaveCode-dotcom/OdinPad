@@ -11,7 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
 import { createIdeaWebEntry } from "@/lib/idea-web/service";
 
-export type HarvestDestination = "idea_web" | "codex" | "clipboard";
+export type HarvestDestination = "idea_web" | "story_wiki" | "clipboard";
 
 export function SandboxHarvestDialog({
   open,
@@ -22,15 +22,15 @@ export function SandboxHarvestDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   defaultText?: string;
-  /** Fired when content is saved to Idea Web or Codex (not clipboard). */
+  /** Fired when content is saved to Idea Web or Story Wiki (not clipboard). */
   onHarvestSuccess?: () => void;
 }) {
   const { user } = useAuth();
-  const { novels, addCodexEntry, activeNovel, refetchIdeaWeb } = useNovelContext();
+  const { novels, addStoryWikiEntry, activeNovel, refetchIdeaWeb } = useNovelContext();
   const [text, setText] = useState(defaultText);
   const [novelId, setNovelId] = useState<string>("");
   const [dest, setDest] = useState<HarvestDestination>("idea_web");
-  const [codexType, setCodexType] = useState<"character" | "location" | "lore" | "faction" | "item">("lore");
+  const [storyWikiType, setStoryWikiType] = useState<"character" | "location" | "lore" | "faction" | "item">("lore");
   const [busy, setBusy] = useState(false);
 
   const run = async () => {
@@ -62,7 +62,7 @@ export function SandboxHarvestDialog({
         onOpenChange(false);
         return;
       }
-      if (dest === "codex") {
+      if (dest === "story_wiki") {
         const targetId = novelId || activeNovel?.id;
         if (!targetId || targetId !== activeNovel?.id) {
           toast({
@@ -73,12 +73,12 @@ export function SandboxHarvestDialog({
           return;
         }
         const titleLine = text.split("\n")[0]?.slice(0, 120) || "Harvested note";
-        addCodexEntry(codexType, titleLine);
+        addStoryWikiEntry(storyWikiType, titleLine);
         toast({
-          title: "Codex stub added",
+          title: "Story Wiki stub added",
           description: "Switch to your book and open Story Wiki to edit the new entry.",
         });
-        trackEvent("sandbox_harvest", { dest: "codex", type: codexType });
+        trackEvent("sandbox_harvest", { dest: "story_wiki", type: storyWikiType });
         onHarvestSuccess?.();
         onOpenChange(false);
       }
@@ -96,7 +96,7 @@ export function SandboxHarvestDialog({
           <DialogTitle>Harvest from Sandbox</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          Promote a fragment to Idea Web, a Codex stub, or copy for your manuscript.
+          Promote a fragment to Idea Web, a Story Wiki stub, or copy for your manuscript.
         </p>
         <div className="grid gap-2">
           <Label>Destination</Label>
@@ -106,7 +106,7 @@ export function SandboxHarvestDialog({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="idea_web">Idea Web entry</SelectItem>
-              <SelectItem value="codex">Story Wiki (codex) stub</SelectItem>
+              <SelectItem value="story_wiki">Story Wiki stub</SelectItem>
               <SelectItem value="clipboard">Clipboard (for Manuscript)</SelectItem>
             </SelectContent>
           </Select>
@@ -129,7 +129,7 @@ export function SandboxHarvestDialog({
             </Select>
           </div>
         )}
-        {dest === "codex" && (
+        {dest === "story_wiki" && (
           <div className="grid gap-2 sm:grid-cols-2">
             <div>
               <Label>Project</Label>
@@ -147,8 +147,8 @@ export function SandboxHarvestDialog({
               </Select>
             </div>
             <div>
-              <Label>Codex type</Label>
-              <Select value={codexType} onValueChange={(v) => setCodexType(v as typeof codexType)}>
+              <Label>Story Wiki type</Label>
+              <Select value={storyWikiType} onValueChange={(v) => setStoryWikiType(v as typeof storyWikiType)}>
                 <SelectTrigger className="border border-border">
                   <SelectValue />
                 </SelectTrigger>

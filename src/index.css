@@ -7,84 +7,96 @@
 
 @layer base {
   :root {
-    /* Standard light theme (shadcn-style — soft borders, rounded UI) */
+    /* Notion-inspired light theme */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 30 6% 22%;          /* #37352f — Notion's warm dark text */
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 30 6% 22%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 30 6% 22%;
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 172 66% 30%;           /* teal-700 — brand accent */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 40 6% 94%;           /* #f1f1ef — Notion's hover surface */
+    --secondary-foreground: 30 6% 22%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 40%; /* bumped from 46.1% → 40% for WCAG AA ≥4.5:1 on cream/white */
+    --muted: 40 6% 94%;
+    --muted-foreground: 30 4% 56%;    /* #9b9a97 — Notion's placeholder text */
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 40 6% 94%;
+    --accent-foreground: 30 6% 22%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    --border: 40 5% 90%;              /* #e9e9e7 — Notion's subtle border */
+    --input: 40 5% 90%;
+    --ring: 172 66% 30%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar — slightly off-white, Notion-like */
+    --sidebar-background: 40 5% 97%;  /* #f7f7f5 */
+    --sidebar-foreground: 30 6% 22%;
+    --sidebar-primary: 172 66% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 6% 93%;      /* hover: #ebebea */
+    --sidebar-accent-foreground: 30 6% 22%;
+    --sidebar-border: 40 5% 90%;
+    --sidebar-ring: 172 66% 30%;
 
-    --text-prose: 240 10% 12%;
-    --text-dim: 240 4% 42%;
+    --text-prose: 30 6% 22%;
+    --text-dim: 30 4% 56%;
     --shadow-ambient: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-glow: none;
   }
 
   .dark {
-    /* Deeper zinc-style dark (default via <html class="dark">) */
-    --background: 240 6% 7%;
-    --foreground: 0 0% 96%;
-    --card: 240 5% 10%;
-    --card-foreground: 0 0% 96%;
-    --popover: 240 5% 10%;
-    --popover-foreground: 0 0% 96%;
-    --primary: 210 90% 58%;
-    --primary-foreground: 240 6% 7%;
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 58%;
-    --accent: 240 4% 18%;
-    --accent-foreground: 0 0% 96%;
-    --destructive: 0 72% 51%;
+    /* Notion-inspired dark theme */
+    --background: 0 0% 9.8%;         /* #191919 */
+    --foreground: 0 0% 94%;           /* near-white */
+
+    --card: 0 0% 12.5%;              /* #202020 */
+    --card-foreground: 0 0% 94%;
+
+    --popover: 0 0% 12.5%;
+    --popover-foreground: 0 0% 94%;
+
+    --primary: 172 60% 48%;           /* teal-400 — brighter on dark */
+    --primary-foreground: 0 0% 9.8%;
+
+    --secondary: 0 0% 16%;            /* #292929 */
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 0 0% 16%;
+    --muted-foreground: 0 0% 55%;     /* ~#8c8c8c */
+
+    --accent: 0 0% 18%;              /* #2d2d2d — hover surface */
+    --accent-foreground: 0 0% 94%;
+
+    --destructive: 0 65% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 18%;
-    --input: 240 4% 18%;
-    --ring: 210 90% 58%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-    --text-prose: 0 0% 95%;
-    --text-dim: 240 5% 64.9%;
-    --shadow-ambient: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+
+    --border: 0 0% 21.5%;            /* #373737 — Notion's dark border */
+    --input: 0 0% 21.5%;
+    --ring: 172 60% 48%;
+
+    /* Sidebar — slightly lighter than background */
+    --sidebar-background: 0 0% 12.5%; /* #202020 */
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 172 60% 48%;
+    --sidebar-primary-foreground: 0 0% 9.8%;
+    --sidebar-accent: 0 0% 18%;
+    --sidebar-accent-foreground: 0 0% 94%;
+    --sidebar-border: 0 0% 21.5%;
+    --sidebar-ring: 172 60% 48%;
+
+    --text-prose: 0 0% 92%;
+    --text-dim: 0 0% 55%;
+    --shadow-ambient: 0 1px 3px 0 rgb(0 0 0 / 0.3);
   }
 }
 
@@ -161,25 +173,25 @@
   }
 
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: hsl(var(--muted));
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.35);
+    background: hsl(var(--muted-foreground) / 0.25);
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
+    background: hsl(var(--muted-foreground) / 0.4);
   }
 
   ::selection {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
+    background: hsl(var(--primary) / 0.15);
+    color: hsl(var(--foreground));
   }
 
   /* Dark-mode prose editor refinements */
@@ -189,7 +201,7 @@
 
   .dark .prose-editor::selection,
   .dark .prose-editor *::selection {
-    background: hsl(var(--primary) / 0.35);
+    background: hsl(var(--primary) / 0.3);
     color: hsl(var(--foreground));
   }
 
@@ -208,7 +220,7 @@
     @apply flex min-h-dvh w-full min-w-0 flex-col box-border p-0;
   }
 
-  /* Neobrutalist — grid paper (solid lines, no gradients) */
+  /* Grid paper pattern — landing/auth pages only */
   .landing-grid-paper {
     background-color: #fafaf8;
     background-image:
@@ -218,22 +230,21 @@
     background-position: -1px -1px;
   }
 
-  .dashboard-main {
-    background-color: #fdfbf0;
+  /* Modern card — subtle shadow, no harsh borders */
+  .app-card {
+    @apply rounded-lg border border-border bg-card shadow-sm transition-shadow;
   }
 
-  /* Card patterns: .dashboard-brutal-card (2px border + offset shadow), Tailwind shadow-brutal / shadow-brutal-sm / shadow-brutal-md, studio-cream / amber-50 surfaces. */
+  .app-card:hover {
+    @apply shadow-md;
+  }
+
+  /* Legacy alias — kept so existing usages don't hard-break during migration */
+  .dashboard-main {
+    @apply bg-background;
+  }
 
   .dashboard-brutal-card {
-    @apply rounded-xl border-2 border-neutral-900 bg-white;
-    box-shadow: 4px 4px 0 0 rgb(0 0 0 / 0.12);
-  }
-}
-
-/* Brutal cards: honor reduced motion for hover/transition polish */
-@media (prefers-reduced-motion: reduce) {
-  .dashboard-brutal-card,
-  [class*="shadow-brutal"] {
-    transition-duration: 0.01ms !important;
+    @apply rounded-lg border border-border bg-card shadow-sm;
   }
 }

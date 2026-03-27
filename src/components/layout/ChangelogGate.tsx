@@ -77,7 +77,7 @@ export function ChangelogGate() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 340, damping: 30, delay: i * 0.06 }}
-            className="pointer-events-auto flex w-[min(92vw,360px)] items-start gap-3 rounded-sm border-2 border-neutral-900 bg-white px-3 py-2.5 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.12)]"
+            className="pointer-events-auto flex w-[min(92vw,360px)] items-start gap-3 rounded-lg border border-border bg-card px-3 py-2.5 shadow-lg"
           >
             {i === 0 && (
               <div className="shrink-0">
@@ -85,7 +85,7 @@ export function ChangelogGate() {
                 <p className="text-[9px] text-muted-foreground/70">{date}</p>
               </div>
             )}
-            <p className="min-w-0 flex-1 text-xs font-medium text-neutral-800">{item}</p>
+            <p className="min-w-0 flex-1 text-xs font-medium text-foreground">{item}</p>
             <button
               type="button"
               onClick={() => dismissItem(item)}

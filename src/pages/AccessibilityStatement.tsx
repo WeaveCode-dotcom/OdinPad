@@ -5,7 +5,7 @@ import { RetroWindowFrame } from "@/components/layout/RetroWindowFrame";
 
 export default function AccessibilityStatement() {
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[#fdfbf0]">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
       <AppPageHeader title="Accessibility" subtitle="OdinPad commitment to inclusive writing tools" />
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-10 pt-5 md:px-8 md:pt-6">
         <div className="mx-auto max-w-2xl space-y-6">

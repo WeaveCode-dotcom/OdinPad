@@ -9,7 +9,7 @@ import {
   createAct,
   createBrainstormNote,
   createChapter,
-  createCodexEntry,
+  createStoryWikiEntry,
   createDemoNovel,
   createNovel,
   CreateNovelOptions,
@@ -30,7 +30,7 @@ import type { IdeaWebEntry, IdeaWebLink, IdeaWebRevisionSnapshot, IdeaWebStatus 
 import {
   BrainstormNote,
   CanvasState,
-  CodexEntry,
+  StoryWikiEntry,
   CustomBeat,
   Idea,
   Novel,
@@ -88,8 +88,14 @@ interface NovelContextType {
   addActToNovel: () => void;
   addChapterToAct: (actId: string) => void;
   addSceneToChapter: (chapterId: string) => void;
-  addCodexEntry: (type: CodexEntry["type"], name: string) => void;
-  updateCodexEntry: (entryId: string, patch: Partial<CodexEntry>) => void;
+  addStoryWikiEntry: (type: StoryWikiEntry["type"], name: string) => void;
+  updateStoryWikiEntry: (entryId: string, patch: Partial<StoryWikiEntry>) => void;
+  deleteStoryWikiEntry: (entryId: string) => void;
+  /** @deprecated Use addStoryWikiEntry */
+  addCodexEntry: (type: StoryWikiEntry["type"], name: string) => void;
+  /** @deprecated Use updateStoryWikiEntry */
+  updateCodexEntry: (entryId: string, patch: Partial<StoryWikiEntry>) => void;
+  /** @deprecated Use deleteStoryWikiEntry */
   deleteCodexEntry: (entryId: string) => void;
   getActiveScene: () => Scene | null;
   goToDashboard: () => void;
@@ -516,32 +522,39 @@ function NovelContextInner({
     [updateNovel],
   );
 
-  const addCodexEntry = useCallback(
-    (type: CodexEntry["type"], name: string) => {
-      updateNovel((novel) => ({ ...novel, codexEntries: [...novel.codexEntries, createCodexEntry(type, name)] }));
+  const addStoryWikiEntry = useCallback(
+    (type: StoryWikiEntry["type"], name: string) => {
+      updateNovel((novel) => ({ ...novel, storyWikiEntries: [...novel.storyWikiEntries, createStoryWikiEntry(type, name)] }));
     },
     [updateNovel],
   );
 
-  const updateCodexEntry = useCallback(
-    (entryId: string, patch: Partial<CodexEntry>) => {
+  const updateStoryWikiEntry = useCallback(
+    (entryId: string, patch: Partial<StoryWikiEntry>) => {
       updateNovel((novel) => ({
         ...novel,
-        codexEntries: novel.codexEntries.map((entry) => (entry.id === entryId ? { ...entry, ...patch } : entry)),
+        storyWikiEntries: novel.storyWikiEntries.map((entry) =>
+          entry.id === entryId ? { ...entry, ...patch, updatedAt: new Date().toISOString() } : entry,
+        ),
       }));
     },
     [updateNovel],
   );
 
-  const deleteCodexEntry = useCallback(
+  const deleteStoryWikiEntry = useCallback(
     (entryId: string) => {
       updateNovel((novel) => ({
         ...novel,
-        codexEntries: novel.codexEntries.filter((entry) => entry.id !== entryId),
+        storyWikiEntries: novel.storyWikiEntries.filter((entry) => entry.id !== entryId),
       }));
     },
     [updateNovel],
   );
+
+  // Backward-compat aliases
+  const addCodexEntry = addStoryWikiEntry;
+  const updateCodexEntry = updateStoryWikiEntry;
+  const deleteCodexEntry = deleteStoryWikiEntry;
 
   const getActiveScene = useCallback((): Scene | null => {
     if (!activeNovel || !activeSceneId) return null;
@@ -793,9 +806,7 @@ function NovelContextInner({
         ...novel,
         acts: novel.acts.map((act) => ({
           ...act,
-          chapters: act.chapters
-            .filter((ch) => ch.id !== chapterId)
-            .map((ch, i) => ({ ...ch, order: i })),
+          chapters: act.chapters.filter((ch) => ch.id !== chapterId).map((ch, i) => ({ ...ch, order: i })),
         })),
       }));
     },
@@ -897,6 +908,9 @@ function NovelContextInner({
       addActToNovel,
       addChapterToAct,
       addSceneToChapter,
+      addStoryWikiEntry,
+      updateStoryWikiEntry,
+      deleteStoryWikiEntry,
       addCodexEntry,
       updateCodexEntry,
       deleteCodexEntry,
@@ -964,6 +978,9 @@ function NovelContextInner({
       addActToNovel,
       addChapterToAct,
       addSceneToChapter,
+      addStoryWikiEntry,
+      updateStoryWikiEntry,
+      deleteStoryWikiEntry,
       addCodexEntry,
       updateCodexEntry,
       deleteCodexEntry,

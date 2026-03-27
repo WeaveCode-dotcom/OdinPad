@@ -79,7 +79,7 @@ export default function SeriesWorkspacePage() {
 
   if (!loading && !seriesRow) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col bg-[#fdfbf0]">
+      <div className="flex min-h-0 flex-1 flex-col bg-background">
         <AppPageHeader title="Series not found" subtitle="" />
         <div className="p-6">
           <Link to={ROUTES.library} className="text-sm text-teal-700 underline">
@@ -91,7 +91,7 @@ export default function SeriesWorkspacePage() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[#fdfbf0]">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
       <AppPageHeader
         title={loading ? "Loading…" : (seriesRow?.title ?? "Series")}
         subtitle={seriesRow?.description ?? "Book series workspace"}
@@ -104,7 +104,7 @@ export default function SeriesWorkspacePage() {
               type="button"
               variant="outline"
               size="sm"
-              className="gap-1.5 border-2 border-neutral-900"
+              className="gap-1.5 border border-border"
               onClick={() => navigate(ROUTES.library)}
             >
               <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
@@ -115,7 +115,7 @@ export default function SeriesWorkspacePage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="gap-1.5 border-2 border-neutral-900"
+                className="gap-1.5 border border-border"
                 onClick={() => setManageOpen(true)}
                 disabled={!seriesRow}
               >
@@ -125,7 +125,7 @@ export default function SeriesWorkspacePage() {
               <Button
                 type="button"
                 size="sm"
-                className="gap-1.5 border-2 border-neutral-900 bg-teal-600 text-white hover:bg-teal-700"
+                className="gap-1.5 border border-border bg-primary text-white hover:bg-primary/90"
                 onClick={() => navigate(ROUTES.library)}
                 title="Add book in the Library → New book → choose this series"
               >
@@ -137,8 +137,8 @@ export default function SeriesWorkspacePage() {
 
           {/* Series header card */}
           {!loading && seriesRow && (
-            <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)] md:p-5">
-              <h2 className="text-xl font-black uppercase tracking-tight text-neutral-900">{seriesRow.title}</h2>
+            <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5">
+              <h2 className="text-xl font-black uppercase tracking-tight text-foreground">{seriesRow.title}</h2>
               {seriesRow.description && <p className="mt-1 text-sm text-muted-foreground">{seriesRow.description}</p>}
               <p className="mt-2 text-xs text-neutral-500">
                 {seriesBooks.length} book{seriesBooks.length === 1 ? "" : "s"}
@@ -147,7 +147,7 @@ export default function SeriesWorkspacePage() {
           )}
 
           {/* Book list */}
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-5">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5">
             <div className="mb-3 flex items-baseline justify-between">
               <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">Books in series</h3>
               {seriesBooks.length > 1 && (
@@ -156,7 +156,7 @@ export default function SeriesWorkspacePage() {
             </div>
 
             {loading ? (
-              <div className="h-24 animate-pulse rounded-md bg-neutral-100" />
+              <div className="h-24 animate-pulse rounded-md bg-secondary" />
             ) : seriesBooks.length === 0 ? (
               <div className="rounded-lg border-2 border-dashed border-neutral-300 p-6 text-center">
                 <p className="text-sm text-muted-foreground">No books yet.</p>

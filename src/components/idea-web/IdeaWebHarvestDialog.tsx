@@ -301,7 +301,7 @@ export function IdeaWebHarvestDialog({
 
           <label className="flex items-center gap-2 text-sm">
             <Checkbox checked={addCodex} onCheckedChange={(v) => setAddCodex(Boolean(v))} />
-            Add Codex stubs for character / world ideas
+            Add Story Wiki stubs for character / world ideas
           </label>
         </div>
         <DialogFooter className="gap-2">

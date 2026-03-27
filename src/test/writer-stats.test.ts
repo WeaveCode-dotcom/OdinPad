@@ -12,7 +12,7 @@ const baseNovel: Novel = {
   wordCount: 0,
   frameworkId: "three-act",
   acts: [],
-  codexEntries: [],
+  storyWikiEntries: [],
   brainstormNotes: [],
 };
 

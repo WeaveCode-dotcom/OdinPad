@@ -137,9 +137,9 @@ function systemPrompt(task: Task, contextAppend: string): string {
       );
     case "continuity_scan":
       return (
-        "You are a story continuity assistant. You receive a list of codex entries (characters, locations, etc.) and a list of scenes " +
+        "You are a story continuity assistant. You receive a list of Story Wiki entries (characters, locations, etc.) and a list of scenes " +
         "from a novel. Identify up to 10 potential continuity issues: characters appearing before they are introduced, " +
-        "contradictions in codex descriptions vs scene usage, or scenes that reference undefined characters/locations. " +
+        "contradictions in Story Wiki descriptions vs scene usage, or scenes that reference undefined characters/locations. " +
         "Output ONLY a JSON array — no prose, no markdown wrapper — of objects with these exact keys: " +
         '{ "sceneId": string, "issue": string }. ' +
         "sceneId must be the exact scene ID provided. issue should be one concise sentence. " +
@@ -322,7 +322,7 @@ Deno.serve(async (req: Request) => {
           `Scene ID: ${s.id}\nTitle: ${s.title}\nSummary: ${s.summary}\nCharacters: ${s.characters.join(", ") || "none"}`,
       )
       .join("\n\n");
-    userContentStr = `Codex entries:\n${codexBlock || "(none)"}\n\nScenes:\n${sceneBlock}`;
+    userContentStr = `Story Wiki entries:\n${codexBlock || "(none)"}\n\nScenes:\n${sceneBlock}`;
   } else {
     userContentStr = userContent(task as "what_if" | "combine" | "expand", ideas.slice(0, task === "combine" ? 2 : 1));
     userContentStr += buildContextAppend(body.contextPerIdea);

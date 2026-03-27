@@ -36,7 +36,7 @@ export function mapPersonalization(input: PersonalizationInput): Personalization
   if (input.writingStage === "editing" || input.writingStage === "finishing") preferredWorkspaceMode = "review";
 
   const highlightedTools = ["goal-tracker"];
-  if (hasFantasy || input.primaryGoal === "build-world") highlightedTools.push("codex");
+  if (hasFantasy || input.primaryGoal === "build-world") highlightedTools.push("story-wiki");
   if (input.primaryGoal === "daily-word-count") highlightedTools.push("sprint-timer");
   if (input.writingStyle === "plotter") highlightedTools.push("framework-planner");
   if (input.writingStyle === "pantser") highlightedTools.push("scene-drafts");

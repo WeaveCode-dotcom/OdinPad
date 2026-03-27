@@ -39,7 +39,9 @@ export interface Novel {
   frameworkId: string;
   customBeats?: CustomBeat[];
   acts: Act[];
-  codexEntries: CodexEntry[];
+  storyWikiEntries: StoryWikiEntry[];
+  /** @deprecated Use storyWikiEntries. Kept for migration. */
+  codexEntries?: StoryWikiEntry[];
   /** @deprecated Embedded ideas are migrated to IdeaWebEntry. Do not add new references. */
   ideas?: Idea[];
   brainstormNotes: BrainstormNote[];
@@ -104,7 +106,9 @@ export interface TimelineCard {
 export interface AtlasNode {
   id: string;
   type: "character" | "location" | "lore" | "item" | "faction" | "theme" | "custom";
+  /** @deprecated Use storyWikiEntryId instead. */
   codexEntryId?: string;
+  storyWikiEntryId?: string;
   /** When set, this node originated from an IdeaWebEntry. */
   ideaWebEntryId?: string;
   label: string;
@@ -208,6 +212,8 @@ export interface Scene {
   wordCount: number;
   labels: string[];
   beatId?: string; // linked framework beat
+  storyWikiRefs?: string[];
+  /** @deprecated Use storyWikiRefs */
   codexRefs?: string[];
   /** Per-scene word count target. */
   targetWordCount?: number;
@@ -225,16 +231,66 @@ export interface CharacterArc {
   endingState?: string;
 }
 
-export interface CodexEntry {
+export type StoryWikiEntryType =
+  | "character"
+  | "location"
+  | "item"
+  | "magic_system"
+  | "faction"
+  | "species"
+  | "culture"
+  | "religion"
+  | "event"
+  | "theme"
+  | "lore";
+
+export type StoryWikiEntryStatus = "draft" | "published" | "archived";
+
+/** A snapshot of how a Story Wiki entry changes at a specific narrative point. */
+export interface Progression {
   id: string;
-  type: "character" | "location" | "lore" | "item" | "faction";
+  triggerPoint: string;
+  description: string;
+  tags: string[];
+  status: "active" | "completed" | "reversed" | "irreversible";
+  linkedSceneIds?: string[];
+  order: number;
+}
+
+/** A directional or bidirectional link between two Story Wiki entries. */
+export interface ArticleRelationship {
+  id: string;
+  targetEntryId: string;
+  relationshipType: string;
+  strength?: number;
+  bidirectional?: boolean;
+  notes?: string;
+}
+
+export interface StoryWikiEntry {
+  id: string;
+  type: StoryWikiEntryType;
   name: string;
+  status: StoryWikiEntryStatus;
   description: string;
   notes: string;
   tags: string[];
   /** Character arc worksheet — only meaningful when type === "character". */
   arc?: CharacterArc;
+  /** How this entry evolves over the narrative. */
+  progressions?: Progression[];
+  /** Links to related entries. */
+  relationships?: ArticleRelationship[];
+  /** Image URL (cover art / reference photo). */
+  imageUrl?: string;
+  /** Template-specific structured fields (e.g. age, climate, magic rules). */
+  fields?: Record<string, string>;
+  createdAt?: string;
+  updatedAt?: string;
 }
+
+/** @deprecated Renamed to StoryWikiEntry. Use StoryWikiEntry instead. */
+export type CodexEntry = StoryWikiEntry;
 
 export type BeatTone = "action" | "revelation" | "emotional" | "transition" | "climax";
 
@@ -311,7 +367,16 @@ export interface EditSuggestion {
   sceneId: string;
   /** Which pass produced this suggestion */
   pass: EditPass;
-  type: "tighten" | "heighten" | "dialogue" | "fewer-words" | "passive-voice" | "weak-word" | "cliche" | "show-dont-tell" | "revision-prompt";
+  type:
+    | "tighten"
+    | "heighten"
+    | "dialogue"
+    | "fewer-words"
+    | "passive-voice"
+    | "weak-word"
+    | "cliche"
+    | "show-dont-tell"
+    | "revision-prompt";
   /** The original text span (may be empty for revision prompts) */
   original: string;
   /** AI suggestion text (or prompt text for revision-prompt type) */

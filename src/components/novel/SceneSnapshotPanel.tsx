@@ -36,8 +36,8 @@ export function SceneSnapshotPanel({ sceneId, currentContent, onClose, onRestore
   const diff = viewing ? diffLines(viewing.content, currentContent) : [];
 
   return (
-    <div className="flex h-full flex-col border-l-2 border-border bg-card/90 w-72">
-      <div className="flex items-center justify-between border-b-2 border-border px-4 py-3">
+    <div className="flex h-full flex-col border-l border-border bg-card/90 w-72">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
         {viewing ? (
           <button
             onClick={() => setViewing(null)}
@@ -52,7 +52,7 @@ export function SceneSnapshotPanel({ sceneId, currentContent, onClose, onRestore
         <button
           onClick={onClose}
           aria-label="Close snapshot panel"
-          className="rounded-sm border-2 border-transparent p-1 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+          className="rounded-sm border border-transparent p-1 text-muted-foreground transition-colors hover:border-border hover:text-foreground"
         >
           <X className="h-4 w-4" aria-hidden />
         </button>
@@ -126,7 +126,7 @@ export function SceneSnapshotPanel({ sceneId, currentContent, onClose, onRestore
               <Button
                 type="button"
                 size="sm"
-                className="w-full gap-1.5 border-2 border-neutral-900 bg-teal-600 text-white hover:bg-teal-700"
+                className="w-full gap-1.5 border border-border bg-primary text-white hover:bg-primary/90"
                 onClick={handleSave}
               >
                 <Camera className="h-3.5 w-3.5" aria-hidden />

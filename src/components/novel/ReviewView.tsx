@@ -82,7 +82,7 @@ export default function ReviewView() {
     if (!activeNovel || scanRunning) return;
     setScanRunning(true);
     try {
-      const codex = activeNovel.codexEntries.map((e) => ({
+      const codex = activeNovel.storyWikiEntries.map((e) => ({
         name: e.name,
         type: e.type,
         description: e.description.slice(0, 300),

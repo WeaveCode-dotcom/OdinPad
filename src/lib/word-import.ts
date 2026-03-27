@@ -167,7 +167,7 @@ export async function importDocxAsManuscript(file: File, author: string): Promis
     wordCount: totalWordCount,
     frameworkId: "three-act",
     acts,
-    codexEntries: [],
+    storyWikiEntries: [],
     brainstormNotes: [],
   };
 }

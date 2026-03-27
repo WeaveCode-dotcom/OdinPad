@@ -15,8 +15,8 @@ import { computeWritingStreak, fetchUserDailyStatsRange, getLocalISODate } from 
 import { cn } from "@/lib/utils";
 
 const shell = {
-  card: "rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-6",
-  progressTrack: "h-2.5 w-full overflow-hidden rounded-full border-2 border-neutral-900 bg-neutral-100",
+  card: "rounded-lg border border-border bg-card p-4 shadow-sm md:p-6",
+  progressTrack: "h-2.5 w-full overflow-hidden rounded-full border border-border bg-secondary",
   progressFill: "h-full rounded-sm transition-[width] duration-300",
 };
 
@@ -126,7 +126,7 @@ export default function WriterOdysseyPage() {
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-studio-cream">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
       <AppPageHeader
         title="Writer's Odyssey"
         subtitle="Your profile, rank, and journey across every manuscript"
@@ -139,12 +139,12 @@ export default function WriterOdysseyPage() {
               <div className="relative shrink-0">
                 <Avatar className="h-24 w-24 border-4 border-neutral-900 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.12)]">
                   {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
-                  <AvatarFallback className="bg-teal-600 text-2xl font-bold text-white">
+                  <AvatarFallback className="bg-primary text-2xl font-bold text-white">
                     {displayName.slice(0, 1).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <span
-                  className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-neutral-900 bg-amber-300 text-[10px] font-bold shadow-sm"
+                  className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-amber-300 text-[10px] font-bold shadow-sm"
                   title="Odyssey rank"
                 >
                   <Trophy className="h-4 w-4" aria-hidden />
@@ -152,7 +152,7 @@ export default function WriterOdysseyPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-900">Writer profile</p>
-                <h2 className="mt-1 text-2xl font-black tracking-tight text-neutral-900">{displayName}</h2>
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">{displayName}</h2>
                 {bio ? (
                   <p className="mt-2 text-sm leading-relaxed text-neutral-700">{bio}</p>
                 ) : (
@@ -164,7 +164,7 @@ export default function WriterOdysseyPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-2 border-neutral-900"
+                      className="border border-border"
                       onClick={() => navigate(ROUTES.settings)}
                     >
                       Edit profile
@@ -189,10 +189,10 @@ export default function WriterOdysseyPage() {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-900">Odyssey rank</p>
             <p className="mt-1 text-xs text-neutral-600">All manuscripts in your library count toward this tier.</p>
             {novels.length === 0 ? (
-              <p className="mt-4 text-sm text-neutral-800">Create a manuscript to begin your Odyssey.</p>
+              <p className="mt-4 text-sm text-foreground/80">Create a manuscript to begin your Odyssey.</p>
             ) : (
               <>
-                <p className="mt-3 text-2xl font-bold text-neutral-900">{odysseyProgress.rank}</p>
+                <p className="mt-3 text-2xl font-bold text-foreground">{odysseyProgress.rank}</p>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-700">
                   <Trophy className="h-4 w-4 shrink-0" aria-hidden />
                   Next badge: <span className="font-semibold">{odysseyProgress.nextBadge}</span>
@@ -244,13 +244,13 @@ export default function WriterOdysseyPage() {
               <p className="mt-1 text-xs text-muted-foreground">
                 Streak uses your daily word goal ({dailyGoal.toLocaleString()} words / day).
               </p>
-              <p className="mt-4 font-mono text-3xl font-bold tabular-nums text-neutral-900">
+              <p className="mt-4 font-mono text-3xl font-bold tabular-nums text-foreground">
                 {statsLoading ? "—" : `${streak} day${streak === 1 ? "" : "s"}`}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">Current streak</p>
               <p className="mt-4 text-xs text-muted-foreground">
                 Today:{" "}
-                <span className="font-mono font-semibold text-neutral-800">
+                <span className="font-mono font-semibold text-foreground/80">
                   {statsLoading ? "—" : (statsByDate.get(todayIso) ?? 0).toLocaleString()}
                 </span>{" "}
                 words
@@ -270,7 +270,7 @@ export default function WriterOdysseyPage() {
                     <div key={day.date} className="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-end gap-1">
                       <div
                         className={cn(
-                          "w-full min-h-[3px] rounded-t border-2 border-neutral-900 bg-teal-500",
+                          "w-full min-h-[3px] rounded-t border border-border bg-primary",
                           day.words === 0 && "bg-neutral-200",
                         )}
                         style={{ height: `${Math.max(day.words > 0 ? 6 : 3, hPx)}px` }}
@@ -292,14 +292,14 @@ export default function WriterOdysseyPage() {
                 <li key={m.words} className="flex items-start gap-3 text-sm">
                   <span
                     className={cn(
-                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border-2 border-neutral-900",
-                      m.done ? "bg-emerald-400" : "bg-neutral-100",
+                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded border border-border",
+                      m.done ? "bg-emerald-400" : "bg-secondary",
                     )}
                   >
-                    {m.done ? <Check className="h-4 w-4 text-neutral-900" aria-hidden /> : null}
+                    {m.done ? <Check className="h-4 w-4 text-foreground" aria-hidden /> : null}
                   </span>
                   <span
-                    className={cn("pt-0.5", m.done ? "text-neutral-600 line-through" : "font-medium text-neutral-900")}
+                    className={cn("pt-0.5", m.done ? "text-neutral-600 line-through" : "font-medium text-foreground")}
                   >
                     {m.label}
                   </span>
@@ -326,7 +326,7 @@ export default function WriterOdysseyPage() {
                     key={ev.id}
                     className="flex flex-col gap-0.5 border-b border-neutral-100 pb-2 last:border-0 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <span className="font-medium text-neutral-800">{formatSandboxKind(ev.kind)}</span>
+                    <span className="font-medium text-foreground/80">{formatSandboxKind(ev.kind)}</span>
                     <time className="text-xs text-muted-foreground" dateTime={ev.createdAt}>
                       {new Date(ev.createdAt).toLocaleString(undefined, {
                         dateStyle: "medium",

@@ -54,10 +54,10 @@ export function DevFlagPanel() {
       ref={panelRef}
       role="dialog"
       aria-label="Dev: Feature flag overrides"
-      className="fixed bottom-4 right-4 z-[9999] w-72 rounded-lg border-2 border-neutral-900 bg-white p-4 shadow-[6px_6px_0_0_rgb(0_0_0_/_0.15)]"
+      className="fixed bottom-4 right-4 z-[9999] w-72 rounded-lg border border-border bg-card p-4 shadow-[6px_6px_0_0_rgb(0_0_0_/_0.15)]"
     >
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-bold text-neutral-900">Feature Flags</span>
+        <span className="text-sm font-bold text-foreground">Feature Flags</span>
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-[10px] bg-amber-100 text-amber-800 border border-amber-300">
             DEV
@@ -77,7 +77,7 @@ export function DevFlagPanel() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="text-neutral-400 hover:text-neutral-900"
+            className="text-neutral-400 hover:text-foreground"
             aria-label="Close"
           >
             ✕
@@ -94,7 +94,7 @@ export function DevFlagPanel() {
           return (
             <li key={key} className="flex items-center justify-between gap-2">
               <div className="min-w-0">
-                <span className="block text-xs font-medium text-neutral-800">{key}</span>
+                <span className="block text-xs font-medium text-foreground/80">{key}</span>
                 {hasOverride && <span className="text-[10px] text-amber-600">overriding default: {String(base)}</span>}
               </div>
               <Switch

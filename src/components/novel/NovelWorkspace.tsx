@@ -16,7 +16,7 @@ import { loadNovels } from "@/lib/novel-store";
 import type { Novel, WorkspaceMode } from "@/types/novel";
 
 import CanvasView from "./CanvasView";
-import CodexPanel from "./CodexPanel";
+import StoryWikiPanel from "./StoryWikiPanel";
 import EditView from "./EditView";
 import ReviewView from "./ReviewView";
 import { SceneSnapshotPanel } from "./SceneSnapshotPanel";
@@ -73,7 +73,7 @@ export default function NovelWorkspace() {
     // hybrid / unset: keep default (canvas)
   }, [activeNovel?.id, preferences?.writing_style, setMode]);
   const [codexOpen, setCodexOpen] = useState(false);
-  const [codexPinned, setCodexPinned] = useState(() => localStorage.getItem("odinpad_codex_pinned") === "1");
+  const [codexPinned, setCodexPinned] = useState(() => localStorage.getItem("odinpad_story_wiki_pinned") === "1");
   const [snapshotOpen, setSnapshotOpen] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const { schedule: scheduleUndo } = useUndoableAction();
@@ -82,7 +82,7 @@ export default function NovelWorkspace() {
     const next = !codexPinned;
     setCodexPinned(next);
     try {
-      localStorage.setItem("odinpad_codex_pinned", next ? "1" : "0");
+      localStorage.setItem("odinpad_story_wiki_pinned", next ? "1" : "0");
     } catch {
       /* quota */
     }
@@ -100,8 +100,8 @@ export default function NovelWorkspace() {
   );
 
   const hasCharacterEntry = useMemo(
-    () => Boolean(activeNovel?.codexEntries.some((entry) => entry.type === "character")),
-    [activeNovel?.codexEntries],
+    () => Boolean(activeNovel?.storyWikiEntries.some((entry) => entry.type === "character")),
+    [activeNovel?.storyWikiEntries],
   );
 
   const conflictDetail = useMemo(() => {
@@ -193,18 +193,18 @@ export default function NovelWorkspace() {
       },
     },
     {
-      selector: '[data-tour="codex-toggle"]',
+      selector: '[data-tour="story-wiki-toggle"]',
       title: "Add a character",
-      description: "Open the Codex and create your first character entry.",
+      description: "Open the Story Wiki and create your first character entry.",
       onNext: () => {
         setCodexOpen(true);
         setTourStep(4);
       },
     },
     {
-      selector: '[data-tour="codex-add-character"]',
-      title: "Create codex entries",
-      description: "Use the plus control to add character, location, and lore entries.",
+      selector: '[data-tour="story-wiki-add-character"]',
+      title: "Create Story Wiki entries",
+      description: "Use the plus control to add character, location, lore, and more entries.",
       onNext: () => {
         void markGoalDone();
         setTourStep(5);
@@ -392,7 +392,7 @@ export default function NovelWorkspace() {
           <button
             type="button"
             onClick={() => setCodexOpen(!codexOpen)}
-            data-tour="codex-toggle"
+            data-tour="story-wiki-toggle"
             aria-expanded={codexOpen}
             className={`flex items-center gap-1.5 rounded-sm border-2 border-transparent px-2.5 py-1.5 text-xs font-semibold transition-colors ${
               codexOpen
@@ -401,7 +401,7 @@ export default function NovelWorkspace() {
             }`}
           >
             <BookOpen className="h-3.5 w-3.5" />
-            Codex
+            Story Wiki
           </button>
         </div>
       </header>
@@ -504,7 +504,7 @@ export default function NovelWorkspace() {
         </main>
 
         {codexOpen && (
-          <CodexPanel onClose={() => setCodexOpen(false)} pinned={codexPinned} onTogglePin={handleCodexTogglePin} />
+          <StoryWikiPanel onClose={() => setCodexOpen(false)} pinned={codexPinned} onTogglePin={handleCodexTogglePin} />
         )}
         {snapshotOpen && activeSceneId && (
           <SceneSnapshotPanel

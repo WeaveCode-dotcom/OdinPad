@@ -233,7 +233,7 @@ const NEO_FEATURE_QUADS = [
 
 const BENTO = [
   {
-    title: "Codex",
+    title: "Story Wiki",
     desc: "Characters, locations, lore — linked to scenes.",
     icon: Library,
     span: "md:col-span-2",

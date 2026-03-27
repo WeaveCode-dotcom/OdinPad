@@ -70,39 +70,39 @@ interface ActionTray {
 // ---------------------------------------------------------------------------
 
 const PASS_STATUS_LABEL: Record<EditPassStatus, string> = {
-  "unedited": "Unedited",
+  unedited: "Unedited",
   "in-progress": "In Progress",
   "dev-reviewed": "Dev Reviewed",
   "line-edited": "Line Edited",
-  "polished": "Polished",
+  polished: "Polished",
 };
 
 const PASS_STATUS_COLOR: Record<EditPassStatus, string> = {
-  "unedited": "bg-muted text-muted-foreground",
+  unedited: "bg-muted text-muted-foreground",
   "in-progress": "bg-primary/20 text-primary",
   "dev-reviewed": "bg-sky-500/20 text-sky-400",
   "line-edited": "bg-amber-500/20 text-amber-400",
-  "polished": "bg-emerald-500/20 text-emerald-400",
+  polished: "bg-emerald-500/20 text-emerald-400",
 };
 
 const FLAG_LABELS: Record<LineScanFlag["type"], string> = {
   "weak-word": "Weak Word",
   "passive-voice": "Passive Voice",
-  "cliche": "Cliché",
+  cliche: "Cliché",
   "show-dont-tell": "Show Don't Tell",
   "tense-slip": "Tense Slip",
   "pov-slip": "POV Slip",
-  "rhythm": "Rhythm",
+  rhythm: "Rhythm",
 };
 
 const FLAG_COLORS: Record<LineScanFlag["type"], string> = {
   "weak-word": "text-amber-400 bg-amber-500/10",
   "passive-voice": "text-sky-400 bg-sky-500/10",
-  "cliche": "text-rose-400 bg-rose-500/10",
+  cliche: "text-rose-400 bg-rose-500/10",
   "show-dont-tell": "text-violet-400 bg-violet-500/10",
   "tense-slip": "text-red-400 bg-red-500/10",
   "pov-slip": "text-red-500 bg-red-500/15",
-  "rhythm": "text-muted-foreground bg-muted/50",
+  rhythm: "text-muted-foreground bg-muted/50",
 };
 
 const ACTION_LABELS: Record<EditSelectionAction, { label: string; icon: React.ElementType }> = {
@@ -142,9 +142,7 @@ function SceneNavigator({
   editPassState: import("@/types/novel").EditPassState | undefined;
   onSelect: (id: string) => void;
 }) {
-  const uneditedCount = scenes.filter(
-    (s) => getScenePassStatus(s.id, editPassState) === "unedited",
-  ).length;
+  const uneditedCount = scenes.filter((s) => getScenePassStatus(s.id, editPassState) === "unedited").length;
 
   return (
     <aside
@@ -152,9 +150,7 @@ function SceneNavigator({
       aria-label="Scene navigator"
     >
       <div className="border-b-2 border-border px-4 py-3">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          Scenes
-        </p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Scenes</p>
         {uneditedCount > 0 && (
           <p className="mt-0.5 text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">{uneditedCount}</span> unedited
@@ -231,10 +227,10 @@ function DiffCard({
           ) : (
             <span
               className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
-                FLAG_COLORS[(suggestion.type as LineScanFlag["type"])] ?? "bg-muted/50 text-muted-foreground"
+                FLAG_COLORS[suggestion.type as LineScanFlag["type"]] ?? "bg-muted/50 text-muted-foreground"
               }`}
             >
-              {FLAG_LABELS[(suggestion.type as LineScanFlag["type"])] ?? suggestion.type}
+              {FLAG_LABELS[suggestion.type as LineScanFlag["type"]] ?? suggestion.type}
             </span>
           )}
         </div>
@@ -292,8 +288,7 @@ function DiffCard({
           title="Add to Review annotations"
           className="ml-auto flex items-center gap-1 rounded-sm border-2 border-border bg-background px-2.5 py-1 text-xs font-semibold text-muted-foreground transition-colors hover:text-primary hover:border-primary/30"
         >
-          <BookOpen className="h-3 w-3" aria-hidden />
-          → Review
+          <BookOpen className="h-3 w-3" aria-hidden />→ Review
         </button>
       </div>
     </motion.div>
@@ -305,12 +300,7 @@ function DiffCard({
 // ---------------------------------------------------------------------------
 
 export default function EditView() {
-  const {
-    activeNovel,
-    updateSceneContent,
-    updateEditPassState,
-    addReviewAnnotation,
-  } = useNovelContext();
+  const { activeNovel, updateSceneContent, updateEditPassState, addReviewAnnotation } = useNovelContext();
   const { schedule: scheduleUndo } = useUndoableAction();
 
   const [activePass, setActivePass] = useState<EditPass>("dev");
@@ -330,15 +320,13 @@ export default function EditView() {
     () =>
       activeNovel
         ? activeNovel.acts.flatMap((act) =>
-            act.chapters.flatMap((ch) =>
-              ch.scenes.map((s) => ({ ...s, actTitle: act.title, chTitle: ch.title })),
-            ),
+            act.chapters.flatMap((ch) => ch.scenes.map((s) => ({ ...s, actTitle: act.title, chTitle: ch.title }))),
           )
         : [],
     [activeNovel],
   );
 
-  const activeScene = activeSceneId ? allScenes.find((s) => s.id === activeSceneId) ?? null : null;
+  const activeScene = activeSceneId ? (allScenes.find((s) => s.id === activeSceneId) ?? null) : null;
 
   // Auto-select first scene
   useEffect(() => {
@@ -367,12 +355,18 @@ export default function EditView() {
       return;
     }
     const selectedText = sel.toString().trim();
-    if (selectedText.length < 3) { setActionTray(null); return; }
+    if (selectedText.length < 3) {
+      setActionTray(null);
+      return;
+    }
 
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     const containerRect = contentRef.current?.getBoundingClientRect();
-    if (!containerRect) { setActionTray(null); return; }
+    if (!containerRect) {
+      setActionTray(null);
+      return;
+    }
 
     const surroundingContext = activeScene ? getSurroundingContext(activeScene.content, selectedText) : "";
 
@@ -437,7 +431,7 @@ export default function EditView() {
       const act = activeNovel.acts.find((a) => a.chapters.some((ch) => ch.scenes.some((s) => s.id === activeScene.id)));
       const chapter = act?.chapters.find((ch) => ch.scenes.some((s) => s.id === activeScene.id));
 
-      const codexSummary = activeNovel.codexEntries
+      const codexSummary = activeNovel.storyWikiEntries
         .slice(0, 8)
         .map((e) => `[${e.type}] ${e.name}: ${e.description.slice(0, 120)}`)
         .join("\n");
@@ -664,9 +658,7 @@ export default function EditView() {
                 aria-selected={activePass === p}
                 onClick={() => setActivePass(p)}
                 className={`rounded-sm px-4 py-1.5 text-xs font-semibold transition-colors ${
-                  activePass === p
-                    ? "bg-primary/10 text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                  activePass === p ? "bg-primary/10 text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {p === "dev" ? "Developmental" : "Line & Copy"}
@@ -683,10 +675,7 @@ export default function EditView() {
             { label: "Line Edited", value: `${lineEdited}/${totalScenes}` },
             { label: "Polished", value: `${polished}/${totalScenes}` },
           ].map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-sm border border-border/50 bg-muted/30 px-3 py-2"
-            >
+            <div key={stat.label} className="rounded-sm border border-border/50 bg-muted/30 px-3 py-2">
               <p className="text-[10px] text-muted-foreground">{stat.label}</p>
               <p className="mt-0.5 text-base font-bold font-mono text-foreground">{stat.value}</p>
             </div>
@@ -721,7 +710,9 @@ export default function EditView() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${PASS_STATUS_COLOR[sceneStatus]}`}>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${PASS_STATUS_COLOR[sceneStatus]}`}
+                      >
                         {PASS_STATUS_LABEL[sceneStatus]}
                       </span>
                       {sceneStatus !== "polished" && (
@@ -743,11 +734,7 @@ export default function EditView() {
                 </div>
 
                 {/* Scene text — scrollable, selectable */}
-                <div
-                  ref={contentRef}
-                  className="relative flex-1 overflow-y-auto"
-                  onMouseUp={handleTextSelection}
-                >
+                <div ref={contentRef} className="relative flex-1 overflow-y-auto" onMouseUp={handleTextSelection}>
                   {/* Floating action tray */}
                   <AnimatePresence>
                     {actionTray && activePass === "line" && (
@@ -765,24 +752,27 @@ export default function EditView() {
                         role="toolbar"
                         aria-label="Selection actions"
                       >
-                        {(Object.entries(ACTION_LABELS) as [EditSelectionAction, { label: string; icon: React.ElementType }][]).map(
-                          ([action, { label, icon: Icon }]) => (
-                            <button
-                              key={action}
-                              type="button"
-                              disabled={isRunning}
-                              onClick={() => void runSelectionAction(action)}
-                              className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground disabled:opacity-50"
-                            >
-                              {isRunning && selectionAction === action ? (
-                                <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-                              ) : (
-                                <Icon className="h-3 w-3" aria-hidden />
-                              )}
-                              {label}
-                            </button>
-                          ),
-                        )}
+                        {(
+                          Object.entries(ACTION_LABELS) as [
+                            EditSelectionAction,
+                            { label: string; icon: React.ElementType },
+                          ][]
+                        ).map(([action, { label, icon: Icon }]) => (
+                          <button
+                            key={action}
+                            type="button"
+                            disabled={isRunning}
+                            onClick={() => void runSelectionAction(action)}
+                            className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground disabled:opacity-50"
+                          >
+                            {isRunning && selectionAction === action ? (
+                              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+                            ) : (
+                              <Icon className="h-3 w-3" aria-hidden />
+                            )}
+                            {label}
+                          </button>
+                        ))}
                         <button
                           type="button"
                           onClick={() => setActionTray(null)}
@@ -836,7 +826,7 @@ export default function EditView() {
                         {isRunning ? "Analysing…" : "Run Dev Pass"}
                       </button>
                       <p className="mt-1.5 text-[10px] text-muted-foreground/70">
-                        AI reads the scene against its metadata and codex, returns a scene brief + revision prompts.
+                        AI reads the scene against its metadata and Story Wiki, returns a scene brief + revision prompts.
                       </p>
                     </div>
                   ) : (
@@ -858,8 +848,8 @@ export default function EditView() {
                         {isRunning ? "Scanning…" : "Scan Scene"}
                       </button>
                       <p className="mt-1.5 text-[10px] text-muted-foreground/70">
-                        Batch-scans for weak words, passive voice, clichés, POV slips, and more.
-                        Or highlight text above for targeted actions.
+                        Batch-scans for weak words, passive voice, clichés, POV slips, and more. Or highlight text above
+                        for targeted actions.
                       </p>
                     </div>
                   )}
@@ -921,7 +911,9 @@ export default function EditView() {
                       {activePass === "dev" ? (
                         <>
                           <Sparkles className="mb-3 h-8 w-8 text-muted-foreground/30" aria-hidden />
-                          <p className="text-sm text-muted-foreground">Run the Dev Pass to get a scene brief and revision prompts.</p>
+                          <p className="text-sm text-muted-foreground">
+                            Run the Dev Pass to get a scene brief and revision prompts.
+                          </p>
                         </>
                       ) : (
                         <>

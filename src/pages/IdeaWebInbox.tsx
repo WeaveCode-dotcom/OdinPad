@@ -32,7 +32,7 @@ export default function IdeaWebInbox() {
   }, [searchParams, setSearchParams]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[#fdfbf0]">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
       <AppPageHeader
         title="Idea Web"
         subtitle="Inbox and quick capture"

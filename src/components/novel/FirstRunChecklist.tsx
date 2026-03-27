@@ -113,7 +113,7 @@ export function FirstRunDashboardChecklist({ onOpenCreateProject }: { onOpenCrea
           type="button"
           variant="outline"
           size="sm"
-          className="border-2 border-neutral-900 bg-amber-50/90"
+          className="border border-border bg-card"
           onClick={() => setDrawerOpen(true)}
         >
           Getting started
@@ -141,12 +141,12 @@ export function FirstRunDashboardChecklist({ onOpenCreateProject }: { onOpenCrea
           <ul className="mt-6 space-y-3 text-sm">
             <li className="flex flex-wrap items-center gap-2">
               <Check
-                className={`h-4 w-4 ${preferences.first_run_novel_created ? "text-teal-600" : "text-neutral-300"}`}
+                className={`h-4 w-4 ${preferences.first_run_novel_created ? "text-primary" : "text-muted-foreground/40"}`}
                 aria-hidden
               />
               <span
                 className={
-                  preferences.first_run_novel_created ? "text-neutral-500 line-through" : "font-medium text-neutral-900"
+                  preferences.first_run_novel_created ? "text-muted-foreground line-through" : "font-medium text-foreground"
                 }
               >
                 Create or open a project
@@ -159,14 +159,14 @@ export function FirstRunDashboardChecklist({ onOpenCreateProject }: { onOpenCrea
             </li>
             <li className="flex flex-wrap items-center gap-2">
               <Check
-                className={`h-4 w-4 ${preferences.first_run_idea_web_visited ? "text-teal-600" : "text-neutral-300"}`}
+                className={`h-4 w-4 ${preferences.first_run_idea_web_visited ? "text-primary" : "text-muted-foreground/40"}`}
                 aria-hidden
               />
               <span
                 className={
                   preferences.first_run_idea_web_visited
-                    ? "text-neutral-500 line-through"
-                    : "font-medium text-neutral-900"
+                    ? "text-muted-foreground line-through"
+                    : "font-medium text-foreground"
                 }
               >
                 Visit Idea Web or capture an idea
@@ -195,12 +195,12 @@ export function FirstRunDashboardChecklist({ onOpenCreateProject }: { onOpenCrea
             </li>
             <li className="flex flex-wrap items-center gap-2">
               <Check
-                className={`h-4 w-4 ${preferences.first_run_write_opened ? "text-teal-600" : "text-neutral-300"}`}
+                className={`h-4 w-4 ${preferences.first_run_write_opened ? "text-primary" : "text-muted-foreground/40"}`}
                 aria-hidden
               />
               <span
                 className={
-                  preferences.first_run_write_opened ? "text-neutral-500 line-through" : "font-medium text-neutral-900"
+                  preferences.first_run_write_opened ? "text-muted-foreground line-through" : "font-medium text-foreground"
                 }
               >
                 Open Write view in a project
@@ -243,14 +243,14 @@ export function FirstRunStatsCard() {
   if (!preferences) return null;
 
   return (
-    <div className="rounded-xl border-2 border-amber-200 bg-amber-50/90 p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)] md:p-5">
+    <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-amber-900">{FOUNDATIONS_TRACK_LABEL}</h2>
           <p className="mt-1 text-sm text-neutral-700">
             First-run checklist progress. This track is separate from Odyssey word ranks on the dashboard.
             {preferences.foundations_badge_unlocked && (
-              <span className="mt-2 block font-medium text-teal-800">
+              <span className="mt-2 block font-medium text-primary">
                 Badge unlocked: {FOUNDATIONS_TRACK_LABEL} — cosmetic only, separate from Odyssey.
               </span>
             )}
@@ -260,15 +260,15 @@ export function FirstRunStatsCard() {
           type="button"
           variant="outline"
           size="sm"
-          className="shrink-0 border-2 border-neutral-900"
+          className="shrink-0 border border-border"
           onClick={() => navigate("/")}
         >
           Open dashboard
         </Button>
       </div>
-      <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full border-2 border-neutral-900 bg-neutral-100">
+      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
         <div
-          className="h-full rounded-sm bg-teal-500 transition-[width] duration-300"
+          className="h-full rounded-full bg-primary transition-[width] duration-300"
           style={{ width: `${firstRunProgress.pct}%` }}
         />
       </div>
@@ -279,28 +279,28 @@ export function FirstRunStatsCard() {
       <ul className="mt-4 space-y-2 text-sm text-neutral-800">
         <li className="flex items-center gap-2">
           <Check
-            className={cn("h-4 w-4 shrink-0", firstRunProgress.steps.novel ? "text-teal-600" : "text-neutral-300")}
+            className={cn("h-4 w-4 shrink-0", firstRunProgress.steps.novel ? "text-primary" : "text-muted-foreground/40")}
             aria-hidden
           />
-          <span className={firstRunProgress.steps.novel ? "text-neutral-500 line-through" : ""}>
+          <span className={firstRunProgress.steps.novel ? "text-muted-foreground line-through" : ""}>
             Create or open a project
           </span>
         </li>
         <li className="flex items-center gap-2">
           <Check
-            className={cn("h-4 w-4 shrink-0", firstRunProgress.steps.idea_web ? "text-teal-600" : "text-neutral-300")}
+            className={cn("h-4 w-4 shrink-0", firstRunProgress.steps.idea_web ? "text-primary" : "text-muted-foreground/40")}
             aria-hidden
           />
-          <span className={firstRunProgress.steps.idea_web ? "text-neutral-500 line-through" : ""}>
+          <span className={firstRunProgress.steps.idea_web ? "text-muted-foreground line-through" : ""}>
             Visit Idea Web or capture an idea
           </span>
         </li>
         <li className="flex items-center gap-2">
           <Check
-            className={cn("h-4 w-4 shrink-0", firstRunProgress.steps.write ? "text-teal-600" : "text-neutral-300")}
+            className={cn("h-4 w-4 shrink-0", firstRunProgress.steps.write ? "text-primary" : "text-muted-foreground/40")}
             aria-hidden
           />
-          <span className={firstRunProgress.steps.write ? "text-neutral-500 line-through" : ""}>
+          <span className={firstRunProgress.steps.write ? "text-muted-foreground line-through" : ""}>
             Open Write view in a project
           </span>
         </li>

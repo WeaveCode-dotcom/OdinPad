@@ -20,7 +20,7 @@ function novelIdFromScope(scope: "all" | "unassigned" | string): string | null {
 
 export function ExpansionCanvasPanel({ novelScope }: { novelScope: "all" | "unassigned" | string }) {
   const { user } = useAuth();
-  const { ideaWebEntries, addCodexEntry, activeNovel } = useNovelContext();
+  const { ideaWebEntries, addStoryWikiEntry, activeNovel } = useNovelContext();
   const [templateId, setTemplateId] = useState<ExpansionTemplateId>("character");
   const [ideaId, setIdeaId] = useState<string>("");
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -85,7 +85,7 @@ export function ExpansionCanvasPanel({ novelScope }: { novelScope: "all" | "unas
     if (s.sourceIdeaId) setIdeaId(s.sourceIdeaId);
   };
 
-  const promoteToCodex = () => {
+  const promoteToStoryWiki = () => {
     if (!activeNovel) {
       toast({ title: "Open a project from the dashboard first", variant: "destructive" });
       return;
@@ -100,12 +100,12 @@ export function ExpansionCanvasPanel({ novelScope }: { novelScope: "all" | "unas
           : templateId === "faction"
             ? "faction"
             : "lore";
-    addCodexEntry(type, name);
+    addStoryWikiEntry(type, name);
     toast({
-      title: "Codex stub added",
-      description: "Open your book → Canvas → Codex to paste details from this expansion.",
+      title: "Story Wiki stub added",
+      description: "Open your book → Canvas → Story Wiki to paste details from this expansion.",
     });
-    trackEvent("sandbox_promote_codex", { templateId });
+    trackEvent("sandbox_promote_story_wiki", { templateId });
   };
 
   return (
@@ -143,8 +143,8 @@ export function ExpansionCanvasPanel({ novelScope }: { novelScope: "all" | "unas
           <Button type="button" size="sm" onClick={() => void save()}>
             Save expansion
           </Button>
-          <Button type="button" size="sm" variant="secondary" onClick={promoteToCodex}>
-            Promote to Codex
+          <Button type="button" size="sm" variant="secondary" onClick={promoteToStoryWiki}>
+            Promote to Story Wiki
           </Button>
         </div>
         <p className="text-[10px] text-muted-foreground">

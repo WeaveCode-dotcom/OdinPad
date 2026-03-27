@@ -5,7 +5,7 @@ import { RetroWindowFrame } from "@/components/layout/RetroWindowFrame";
 
 export default function Help() {
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-studio-cream">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
       <AppPageHeader title="Help" subtitle="OdinPad documentation and tips" />
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-10 pt-5 md:px-8 md:pt-6">
         <div className="mx-auto max-w-2xl space-y-6">
@@ -52,10 +52,10 @@ export default function Help() {
             </div>
           </RetroWindowFrame>
 
-          <RetroWindowFrame title="codex" accent="white">
-            <div id="help-codex" className="scroll-mt-24">
+          <RetroWindowFrame title="story wiki" accent="white">
+            <div id="help-story-wiki" className="scroll-mt-24">
               <p className="text-sm text-muted-foreground">
-                The <strong>Codex</strong> (inside a project workspace) stores characters, places, lore, and more so
+                The <strong>Story Wiki</strong> (inside a project workspace) stores characters, places, lore, and more so
                 names and continuity stay consistent while you draft.
               </p>
             </div>
@@ -93,8 +93,8 @@ export default function Help() {
                     ["⌘K / Ctrl+K", "Open command palette / quick capture"],
                     ["B", "Toggle sidebar collapse"],
                     ["Esc (in Focus mode)", "Exit focus / fullscreen mode"],
-                    ["Esc (in Codex)", "Close codex panel"],
-                    ["Enter (in Codex add)", "Save new codex entry"],
+                    ["Esc (in Story Wiki)", "Close Story Wiki panel"],
+                    ["Enter (in Story Wiki add)", "Save new Story Wiki entry"],
                     ["Enter (scene search)", "Navigate to a scene"],
                   ] as [string, string][]
                 ).map(([key, desc]) => (

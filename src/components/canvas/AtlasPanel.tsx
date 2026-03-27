@@ -34,10 +34,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useNovelContext } from "@/contexts/NovelContext";
-import type { AtlasEdge, AtlasEdgeType, AtlasNode, CodexEntry } from "@/types/novel";
+import type { AtlasEdge, AtlasEdgeType, AtlasNode, StoryWikiEntry } from "@/types/novel";
 
 function genId() {
   return `at_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/** Map StoryWikiEntryType to the narrower AtlasNode type (types not in AtlasNode fall back to "lore" or "custom"). */
+function toAtlasNodeType(t: string): AtlasNode["type"] {
+  const known: AtlasNode["type"][] = ["character", "location", "lore", "item", "faction", "theme", "custom"];
+  return (known.includes(t as AtlasNode["type"]) ? t : "lore") as AtlasNode["type"];
 }
 
 // ── Color maps ────────────────────────────────────────────────────────────────
@@ -143,7 +149,7 @@ function atlasFromFlow(
     return {
       id: n.id,
       type: p?.type ?? "custom",
-      codexEntryId: p?.codexEntryId,
+      storyWikiEntryId: p?.storyWikiEntryId ?? p?.codexEntryId,
       ideaWebEntryId: p?.ideaWebEntryId,
       label: String((n.data as { label?: string }).label ?? p?.label ?? n.id),
       x: n.position.x,
@@ -328,14 +334,14 @@ function AtlasFlow({
 
 function NodeDetailPanel({
   atlasNode,
-  codexEntry,
+  storyWikiEntry,
   edges,
   onClose,
   onUpdateNode,
   onUpdateEdge,
 }: {
   atlasNode: AtlasNode;
-  codexEntry?: CodexEntry;
+  storyWikiEntry?: StoryWikiEntry;
   edges: AtlasEdge[];
   onClose: () => void;
   onUpdateNode: (patch: Partial<AtlasNode>) => void;
@@ -383,11 +389,11 @@ function NodeDetailPanel({
         </button>
       </div>
 
-      {codexEntry && (
+      {storyWikiEntry && (
         <div className="mb-3 space-y-1 text-xs text-muted-foreground">
-          {codexEntry.description && <p>{codexEntry.description}</p>}
-          {codexEntry.notes && <p className="italic">{codexEntry.notes}</p>}
-          {codexEntry.tags && codexEntry.tags.length > 0 && <p>{codexEntry.tags.map((t) => `#${t}`).join(" ")}</p>}
+          {storyWikiEntry.description && <p>{storyWikiEntry.description}</p>}
+          {storyWikiEntry.notes && <p className="italic">{storyWikiEntry.notes}</p>}
+          {storyWikiEntry.tags && storyWikiEntry.tags.length > 0 && <p>{storyWikiEntry.tags.map((t) => `#${t}`).join(" ")}</p>}
         </div>
       )}
 
@@ -500,13 +506,16 @@ export function AtlasPanel() {
     return new Set(nodes.filter((n) => !connected.has(n.id)).map((n) => n.id));
   }, [nodes, edges]);
 
-  // ── Stale codex references ────────────────────────────────────────────────────
+  // ── Stale Story Wiki references ───────────────────────────────────────────────
 
-  const codexIds = useMemo(() => new Set(activeNovel?.codexEntries.map((e) => e.id) ?? []), [activeNovel]);
+  const storyWikiIds = useMemo(() => new Set(activeNovel?.storyWikiEntries.map((e) => e.id) ?? []), [activeNovel]);
 
   const staleNodes = useMemo(
-    () => nodes.filter((n) => n.codexEntryId && !codexIds.has(n.codexEntryId)),
-    [nodes, codexIds],
+    () => nodes.filter((n) => {
+      const entryId = n.storyWikiEntryId || n.codexEntryId;
+      return entryId && !storyWikiIds.has(entryId);
+    }),
+    [nodes, storyWikiIds],
   );
 
   // ── Visible nodes (with filter + search) ──────────────────────────────────────
@@ -561,16 +570,16 @@ export function AtlasPanel() {
     [updateCanvas],
   );
 
-  // ── Add from codex ────────────────────────────────────────────────────────────
+  // ── Add from Story Wiki ───────────────────────────────────────────────────────
 
-  const addFromCodex = useCallback(
-    (e: CodexEntry) => {
-      if (nodes.some((n) => n.codexEntryId === e.id)) return;
+  const addFromStoryWiki = useCallback(
+    (e: StoryWikiEntry) => {
+      if (nodes.some((n) => (n.storyWikiEntryId || n.codexEntryId) === e.id)) return;
       const id = genId();
       const n: AtlasNode = {
         id,
-        type: e.type,
-        codexEntryId: e.id,
+        type: toAtlasNodeType(e.type),
+        storyWikiEntryId: e.id,
         label: e.name,
         x: 40 + nodes.length * 30,
         y: 40 + nodes.length * 20,
@@ -580,15 +589,15 @@ export function AtlasPanel() {
     [nodes, edges, onGraphCommit],
   );
 
-  const seedFromCodex = () => {
+  const seedFromStoryWiki = () => {
     if (!activeNovel) return;
-    const existingByCodex = new Set(nodes.map((n) => n.codexEntryId).filter(Boolean));
-    const toAdd = activeNovel.codexEntries.filter((e) => !existingByCodex.has(e.id));
+    const existingByEntry = new Set(nodes.map((n) => n.storyWikiEntryId || n.codexEntryId).filter(Boolean));
+    const toAdd = activeNovel.storyWikiEntries.filter((e) => !existingByEntry.has(e.id));
     if (toAdd.length === 0) return;
     const newNodes: AtlasNode[] = toAdd.map((e, i) => ({
       id: genId(),
-      type: e.type,
-      codexEntryId: e.id,
+      type: toAtlasNodeType(e.type),
+      storyWikiEntryId: e.id,
       label: e.name,
       x: (i % 5) * 190 + 40,
       y: Math.floor(i / 5) * 130 + 40,
@@ -652,11 +661,11 @@ export function AtlasPanel() {
 
   if (!activeNovel) return null;
 
-  const unplacedEntries = activeNovel.codexEntries.filter((e) => !nodes.some((n) => n.codexEntryId === e.id));
+  const unplacedEntries = activeNovel.storyWikiEntries.filter((e) => !nodes.some((n) => (n.storyWikiEntryId || n.codexEntryId) === e.id));
 
   const selectedAtlasNode = nodes.find((n) => n.id === selectedNodeId);
-  const selectedCodexEntry = selectedAtlasNode?.codexEntryId
-    ? activeNovel.codexEntries.find((e) => e.id === selectedAtlasNode.codexEntryId)
+  const selectedStoryWikiEntry = selectedAtlasNode
+    ? activeNovel.storyWikiEntries.find((e) => e.id === (selectedAtlasNode.storyWikiEntryId || selectedAtlasNode.codexEntryId))
     : undefined;
 
   // Graph density
@@ -671,10 +680,10 @@ export function AtlasPanel() {
           <kbd className="rounded border border-border px-1 text-[11px]">Delete</kbd> to remove.
         </p>
 
-        {/* Stale codex warning */}
+        {/* Stale Story Wiki warning */}
         {staleNodes.length > 0 && (
           <div className="rounded-sm border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-400">
-            {staleNodes.length} node{staleNodes.length > 1 ? "s" : ""} reference deleted Codex entries. Consider
+            {staleNodes.length} node{staleNodes.length > 1 ? "s" : ""} reference deleted Story Wiki entries. Consider
             removing them.
           </div>
         )}
@@ -729,17 +738,17 @@ export function AtlasPanel() {
             <TooltipContent className="text-xs">Show only nodes with no edges</TooltipContent>
           </Tooltip>
 
-          {/* Seed from Codex */}
+          {/* Seed from Story Wiki */}
           <Button
             type="button"
             size="sm"
             variant="secondary"
-            onClick={seedFromCodex}
+            onClick={seedFromStoryWiki}
             disabled={unplacedEntries.length === 0}
           >
-            Place Codex entries
+            Place Story Wiki entries
             {unplacedEntries.length > 0 && (
-              <span className="ml-1.5 rounded-full bg-teal-600 px-1.5 py-0.5 text-[10px] text-white">
+              <span className="ml-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] text-primary-foreground">
                 {unplacedEntries.length}
               </span>
             )}
@@ -760,7 +769,7 @@ export function AtlasPanel() {
                 type="button"
                 className="rounded-md border px-2 py-1 text-[11px] font-semibold transition-opacity hover:opacity-80"
                 style={{ borderColor: col.border, background: col.bg, color: col.text }}
-                onClick={() => addFromCodex(e)}
+                onClick={() => addFromStoryWiki(e)}
                 aria-label={`Place ${e.name} in Atlas`}
               >
                 + {e.name}
@@ -825,7 +834,7 @@ export function AtlasPanel() {
         {selectedNodeId && selectedAtlasNode && (
           <NodeDetailPanel
             atlasNode={selectedAtlasNode}
-            codexEntry={selectedCodexEntry}
+            storyWikiEntry={selectedStoryWikiEntry}
             edges={edges}
             onClose={() => setSelectedNodeId(null)}
             onUpdateNode={(patch) => updateNode(selectedNodeId, patch)}
@@ -885,7 +894,7 @@ export function AtlasPanel() {
           <div className="rounded-sm border-2 border-dashed border-border/50 bg-muted/10 py-8 text-center">
             <p className="text-sm text-muted-foreground">No nodes yet.</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Click "Place Codex entries" or "Add Node" to start building your relationship graph.
+              Click "Place Story Wiki entries" or "Add Node" to start building your relationship graph.
             </p>
           </div>
         )}

@@ -150,7 +150,7 @@ function BackupRestoreWizard({
             type="button"
             variant="outline"
             size="sm"
-            className="border-2 border-neutral-900"
+            className="border border-border"
             onClick={() => fileRef.current?.click()}
           >
             Choose backup file (.json)
@@ -159,7 +159,7 @@ function BackupRestoreWizard({
         </>
       )}
       {(step === "preview" || step === "conflict") && novel && (
-        <div className="rounded-xl border-2 border-neutral-900 bg-[#fffefb] p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)] space-y-3">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm space-y-3">
           {step === "conflict" && (
             <div className="rounded-md border-2 border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-900">
               A project with this ID already exists in your library. Importing will overwrite it.
@@ -167,7 +167,7 @@ function BackupRestoreWizard({
           )}
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-neutral-500">Novel to restore</p>
-            <p className="mt-1 font-semibold text-neutral-900">{novel.title}</p>
+            <p className="mt-1 font-semibold text-foreground">{novel.title}</p>
             <p className="text-xs text-muted-foreground">
               by {novel.author} · {getNovelWordCount(novel).toLocaleString()} words ·{" "}
               {novel.acts.reduce((s, a) => s + a.chapters.reduce((cs, ch) => cs + ch.scenes.length, 0), 0)} scenes
@@ -178,7 +178,7 @@ function BackupRestoreWizard({
             <Button
               type="button"
               size="sm"
-              className="border-2 border-neutral-900 bg-teal-600 text-white hover:bg-teal-700"
+              className="border border-border bg-primary text-white hover:bg-primary/90"
               onClick={doImport}
             >
               {step === "conflict" ? "Overwrite & restore" : "Restore"}
@@ -187,7 +187,7 @@ function BackupRestoreWizard({
               type="button"
               variant="outline"
               size="sm"
-              className="border-2 border-neutral-900"
+              className="border border-border"
               onClick={() => {
                 setNovel(null);
                 setStep("idle");
@@ -283,7 +283,7 @@ function PushSubscribeButton({ userId }: { userId: string | undefined }) {
           type="button"
           size="sm"
           variant={pushState === "subscribed" ? "outline" : "default"}
-          className="mt-1 w-fit border-2 border-neutral-900"
+          className="mt-1 w-fit border border-border"
           disabled={working}
           onClick={() => void handleToggle()}
         >
@@ -322,13 +322,13 @@ function WebhookField() {
           placeholder="https://hooks.zapier.com/…"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="border-2 border-neutral-900 font-mono text-xs shadow-[3px_3px_0_0_rgb(0_0_0_/_0.06)]"
+          className="border border-border font-mono text-xs shadow-sm"
         />
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="border-2 border-neutral-900 shrink-0"
+          className="border border-border shrink-0"
           onClick={save}
         >
           {saved ? "Saved!" : "Save"}
@@ -361,10 +361,10 @@ function GoalModeToggle() {
           type="button"
           onClick={() => toggle(opt.value)}
           className={cn(
-            "flex-1 rounded-md border-2 border-neutral-900 px-3 py-2 text-left text-xs font-semibold transition-colors",
+            "flex-1 rounded-md border border-border px-3 py-2 text-left text-xs font-semibold transition-colors",
             mode === opt.value
-              ? "bg-teal-600 text-white shadow-[2px_2px_0_0_rgb(0_0_0_/_0.15)]"
-              : "bg-white text-neutral-800 hover:bg-neutral-50",
+              ? "bg-primary text-white shadow-[2px_2px_0_0_rgb(0_0_0_/_0.15)]"
+              : "bg-card text-foreground/80 hover:bg-accent",
           )}
         >
           {opt.label}
@@ -478,10 +478,10 @@ export default function Settings() {
   }, [state, updatePreferences, updateProfile]);
 
   const tabBase =
-    "w-full justify-start border border-border px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-white";
+    "w-full justify-start border border-border px-3 py-2.5 text-left text-xs font-bold uppercase tracking-wide data-[state=inactive]:bg-background data-[state=inactive]:hover:bg-accent";
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-studio-cream">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
       <AppPageHeader
         title="Settings"
         subtitle="Control room — account, editor, goals, and projects"
@@ -507,7 +507,7 @@ export default function Settings() {
           <TabsList className="flex h-auto w-full flex-none flex-row flex-wrap gap-1 border-0 bg-transparent p-0 md:w-52 md:flex-col md:flex-nowrap">
             <TabsTrigger
               value="account"
-              className={`${tabBase} data-[state=active]:!bg-teal-50 data-[state=active]:!text-black`}
+              className={`${tabBase} data-[state=active]:!bg-secondary data-[state=active]:!text-black`}
             >
               Account
             </TabsTrigger>
@@ -525,7 +525,7 @@ export default function Settings() {
             </TabsTrigger>
             <TabsTrigger
               value="projects"
-              className={`${tabBase} data-[state=active]:!bg-teal-50 data-[state=active]:!text-black`}
+              className={`${tabBase} data-[state=active]:!bg-secondary data-[state=active]:!text-black`}
             >
               Projects
             </TabsTrigger>
@@ -543,7 +543,7 @@ export default function Settings() {
             </TabsTrigger>
             <TabsTrigger
               value="privacy"
-              className={`${tabBase} data-[state=active]:!bg-white data-[state=active]:!text-black`}
+              className={`${tabBase} data-[state=active]:!bg-card data-[state=active]:!text-black`}
             >
               Privacy
             </TabsTrigger>
@@ -556,7 +556,7 @@ export default function Settings() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="mb-2 gap-2 border-2 border-neutral-900"
+                  className="mb-2 gap-2 border border-border"
                   onClick={() => setSecurityOpen(true)}
                 >
                   <Shield className="h-4 w-4" />
@@ -636,7 +636,7 @@ export default function Settings() {
                     <p>
                       Progress: {getFirstRunProgress(preferences).completed} of 3
                       {preferences.foundations_badge_unlocked ? (
-                        <span className="mt-2 block font-medium text-teal-800">
+                        <span className="mt-2 block font-medium text-primary">
                           Foundations badge unlocked (cosmetic only).
                         </span>
                       ) : null}
@@ -648,7 +648,7 @@ export default function Settings() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="border-2 border-neutral-900"
+                    className="border border-border"
                     onClick={() => navigate("/#first-run-checklist")}
                   >
                     Open dashboard checklist
@@ -657,7 +657,7 @@ export default function Settings() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="border-2 border-neutral-900"
+                    className="border border-border"
                     onClick={() => navigate("/stats")}
                   >
                     View on Stats
@@ -676,7 +676,7 @@ export default function Settings() {
                   Changes save automatically.
                 </p>
                 <div className="mt-5 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-xl border-2 border-neutral-900 bg-[#fffefb] p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)]">
+                  <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
                     <Label
                       htmlFor="settings-daily-goal"
                       className="text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-600"
@@ -692,7 +692,7 @@ export default function Settings() {
                       min={50}
                       max={50000}
                       inputMode="numeric"
-                      className="mt-3 border-2 border-neutral-900 font-mono shadow-[3px_3px_0_0_rgb(0_0_0_/_0.06)]"
+                      className="mt-3 border border-border font-mono shadow-sm"
                       value={state.daily_word_goal}
                       onChange={(e) => setState((prev) => ({ ...prev, daily_word_goal: e.target.value }))}
                     />
@@ -703,10 +703,10 @@ export default function Settings() {
                           type="button"
                           onClick={() => setState((prev) => ({ ...prev, daily_word_goal: String(n) }))}
                           className={cn(
-                            "rounded-md border-2 border-neutral-900 px-2.5 py-1 text-xs font-semibold transition-colors",
+                            "rounded-md border border-border px-2.5 py-1 text-xs font-semibold transition-colors",
                             Number(state.daily_word_goal) === n
-                              ? "bg-teal-600 text-white shadow-[2px_2px_0_0_rgb(0_0_0_/_0.15)]"
-                              : "bg-white text-neutral-800 hover:bg-neutral-50",
+                              ? "bg-primary text-white shadow-[2px_2px_0_0_rgb(0_0_0_/_0.15)]"
+                              : "bg-card text-foreground/80 hover:bg-accent",
                           )}
                         >
                           {n.toLocaleString()}
@@ -714,7 +714,7 @@ export default function Settings() {
                       ))}
                     </div>
                   </div>
-                  <div className="rounded-xl border-2 border-neutral-900 bg-[#fffefb] p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)]">
+                  <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
                     <Label
                       htmlFor="settings-weekly-goal"
                       className="text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-600"
@@ -730,7 +730,7 @@ export default function Settings() {
                       min={100}
                       max={200000}
                       inputMode="numeric"
-                      className="mt-3 border-2 border-neutral-900 font-mono shadow-[3px_3px_0_0_rgb(0_0_0_/_0.06)]"
+                      className="mt-3 border border-border font-mono shadow-sm"
                       value={state.weekly_word_goal}
                       onChange={(e) => setState((prev) => ({ ...prev, weekly_word_goal: e.target.value }))}
                     />
@@ -741,10 +741,10 @@ export default function Settings() {
                           type="button"
                           onClick={() => setState((prev) => ({ ...prev, weekly_word_goal: String(n) }))}
                           className={cn(
-                            "rounded-md border-2 border-neutral-900 px-2.5 py-1 text-xs font-semibold transition-colors",
+                            "rounded-md border border-border px-2.5 py-1 text-xs font-semibold transition-colors",
                             Number(state.weekly_word_goal) === n
                               ? "bg-amber-600 text-white shadow-[2px_2px_0_0_rgb(0_0_0_/_0.15)]"
-                              : "bg-white text-neutral-800 hover:bg-neutral-50",
+                              : "bg-card text-foreground/80 hover:bg-accent",
                           )}
                         >
                           {n.toLocaleString()}
@@ -753,7 +753,7 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-5 rounded-xl border-2 border-neutral-900 bg-[#fffefb] p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)]">
+                <div className="mt-5 rounded-lg border border-border bg-card p-4 shadow-sm">
                   <Label className="text-[11px] font-bold uppercase tracking-[0.14em] text-neutral-600">
                     Goal display mode
                   </Label>
@@ -767,7 +767,7 @@ export default function Settings() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="border-2 border-neutral-900"
+                    className="border border-border"
                     onClick={() => navigate("/stats")}
                   >
                     Open Stats &amp; analytics
@@ -776,7 +776,7 @@ export default function Settings() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="border-2 border-neutral-900"
+                    className="border border-border"
                     onClick={() => navigate("/odyssey")}
                   >
                     Open Writer&apos;s Odyssey
@@ -799,7 +799,7 @@ export default function Settings() {
                       min={10}
                       max={120}
                       inputMode="numeric"
-                      className="border-2 border-neutral-900 font-mono"
+                      className="border border-border font-mono"
                       value={state.pomodoro_minutes}
                       onChange={(e) => setState((prev) => ({ ...prev, pomodoro_minutes: e.target.value }))}
                       aria-label="Pomodoro minutes"
@@ -836,7 +836,7 @@ export default function Settings() {
                       }
                       onValueChange={(v) => setState((prev) => ({ ...prev, reminder_progress_email: v }))}
                     >
-                      <SelectTrigger className="mt-3 border-2 border-neutral-900 bg-white">
+                      <SelectTrigger className="mt-3 border border-border bg-card">
                         <SelectValue placeholder="Cadence" />
                       </SelectTrigger>
                       <SelectContent>
@@ -847,7 +847,7 @@ export default function Settings() {
                     </Select>
                   </div>
                 </div>
-                <div className="mt-6 rounded-xl border-2 border-neutral-900/15 bg-neutral-50/90 p-4">
+                <div className="mt-6 rounded-lg border border-border/15 bg-accent/90 p-4">
                   <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-neutral-700">
                     Reminder channels
                   </p>
@@ -918,7 +918,7 @@ export default function Settings() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="border-2 border-neutral-900"
+                        className="border border-border"
                         onClick={() => void updatePreferences({ streak_rest_date: null })}
                       >
                         Cancel rest day
@@ -929,7 +929,7 @@ export default function Settings() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-2 border-neutral-900"
+                      className="border border-border"
                       onClick={() => void updatePreferences({ streak_rest_date: getLocalISODate() })}
                     >
                       Use rest day today

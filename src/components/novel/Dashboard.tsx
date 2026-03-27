@@ -93,11 +93,10 @@ import { cn } from "@/lib/utils";
 import type { Novel } from "@/types/novel";
 
 const shell = {
-  brutal: "dashboard-brutal-card transition-shadow duration-200 hover:shadow-[6px_6px_0_0_rgb(0_0_0_/_0.06)]",
-  innerMuted:
-    "rounded-xl border-2 border-neutral-900 bg-white shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)] transition-shadow duration-200 hover:shadow-[6px_6px_0_0_rgb(0_0_0_/_0.06)]",
+  brutal: "app-card transition-shadow duration-200",
+  innerMuted: "rounded-lg border border-border bg-card shadow-sm transition-shadow duration-200",
   title: "text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground",
-  progressTrack: "h-2.5 w-full overflow-hidden rounded-full border-2 border-neutral-900 bg-neutral-100",
+  progressTrack: "h-2 w-full overflow-hidden rounded-full bg-secondary",
   progressFill: "h-full rounded-sm transition-[width] duration-300",
 };
 
@@ -828,29 +827,29 @@ export default function Dashboard() {
   const recentTwoManuscripts = useMemo(() => filteredForOverview.slice(0, 2), [filteredForOverview]);
 
   return (
-    <PageShell className="page-viewport w-full min-h-dvh bg-[#fdfbf0]">
-      <div className="flex min-h-dvh w-full flex-col dashboard-main">
-        <header className="flex shrink-0 flex-col gap-4 border-b-2 border-neutral-900 bg-[#fdfbf0] px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
+    <PageShell className="page-viewport w-full min-h-dvh bg-background">
+      <div className="flex min-h-dvh w-full flex-col bg-background">
+        <header className="flex shrink-0 flex-col gap-4 border-b border-border bg-background px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="icon"
-              className="h-10 w-10 shrink-0 border-2 border-neutral-900 bg-white shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] md:hidden"
+              className="h-10 w-10 shrink-0 md:hidden"
               onClick={() => setMobileNavOpen(true)}
               aria-label="Open navigation menu"
             >
               <Menu className="h-5 w-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Dashboard</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-foreground">Dashboard</h1>
               <p className="text-sm text-muted-foreground">
                 {new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
               </p>
               <p className="mt-1 text-xs">
                 <Link
                   to="/help#help-dashboard"
-                  className="font-medium text-teal-700 underline underline-offset-2 hover:text-teal-900"
+                  className="font-medium text-primary underline underline-offset-2 hover:text-primary/80"
                 >
                   About the dashboard
                 </Link>
@@ -864,14 +863,14 @@ export default function Dashboard() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search projects..."
-                className="border-2 border-neutral-900 bg-white pl-9 font-medium shadow-[3px_3px_0_0_rgb(0_0_0_/_0.08)] placeholder:text-muted-foreground/70"
+                className="bg-background pl-9 placeholder:text-muted-foreground/70"
               />
             </div>
             <Button
               type="button"
               variant="outline"
               size="icon"
-              className="hidden border-2 border-neutral-900 bg-white shadow-[3px_3px_0_0_rgb(0_0_0_/_0.08)] sm:inline-flex"
+              className="hidden border border-border bg-card shadow-sm sm:inline-flex"
               aria-label="Notifications"
             >
               <Bell className="h-4 w-4" />
@@ -879,7 +878,7 @@ export default function Dashboard() {
             <Button
               type="button"
               variant="outline"
-              className="border-2 border-neutral-900 bg-white font-semibold shadow-[3px_3px_0_0_rgb(0_0_0_/_0.08)]"
+              className="border border-border bg-card font-semibold shadow-sm"
               onClick={() => setSeriesDialogOpen(true)}
             >
               <Library className="mr-1 h-4 w-4" />
@@ -887,7 +886,7 @@ export default function Dashboard() {
             </Button>
             <Button
               type="button"
-              className="bg-teal-600 font-semibold text-white shadow-[4px_4px_0_0_rgb(0_0_0_/_0.2)] hover:bg-teal-700"
+              className="bg-primary font-semibold text-white shadow-md hover:bg-primary/90"
               onClick={() => setOpen(true)}
             >
               <Plus className="mr-1 h-4 w-4" />
@@ -904,21 +903,21 @@ export default function Dashboard() {
             transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 320, damping: 28 }}
           >
             {/* Greeting — neo-brutalist hero */}
-            <div className={`${shell.brutal} relative overflow-hidden border-teal-600 bg-[#fffefb] p-5 md:p-6`}>
+            <div className={`${shell.brutal} relative overflow-hidden border-primary bg-card p-5 md:p-6`}>
               <div className="absolute right-4 top-4 hidden h-24 w-28 md:block" aria-hidden>
-                <div className="h-full w-full rounded-2xl border-2 border-neutral-900 bg-teal-200" />
+                <div className="h-full w-full rounded-2xl border border-border bg-primary/20" />
               </div>
               <div className="relative max-w-2xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-800">Writing desk</p>
-                <p className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 md:text-3xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Writing desk</p>
+                <p className="mt-2 text-2xl font-bold tracking-tight text-foreground md:text-3xl">
                   {greetingForNow()}, {displayName}
                 </p>
                 <p className="mt-2 text-sm font-medium text-muted-foreground">
                   You&apos;re building momentum — small sessions add up.
                 </p>
                 {(preferences?.reminder_daily ?? true) && (
-                  <div className="mt-4 border-l-4 border-teal-600 pl-4">
-                    <p className="text-lg font-medium italic leading-snug text-neutral-800 md:text-xl">
+                  <div className="mt-4 border-l-4 border-primary pl-4">
+                    <p className="text-lg font-medium italic leading-snug text-foreground/80 md:text-xl">
                       {dailyQuote.loading ? (
                         <span className="text-muted-foreground not-italic">Fetching today&apos;s line…</span>
                       ) : (
@@ -963,12 +962,12 @@ export default function Dashboard() {
                   ).map((item) => (
                     <div
                       key={item.k}
-                      className="rounded-xl border-2 border-neutral-900 bg-white px-3 py-3 shadow-[3px_3px_0_0_rgb(0_0_0_/_0.08)] sm:px-4 sm:py-4"
+                      className="rounded-xl border border-border bg-card px-3 py-3 shadow-sm sm:px-4 sm:py-4"
                     >
                       <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
                         {item.label}
                       </p>
-                      <p className="mt-1 font-mono text-xl font-bold tabular-nums text-neutral-900 sm:text-2xl">
+                      <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
                         {item.value}
                       </p>
                       <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">{item.sub}</p>
@@ -994,34 +993,34 @@ export default function Dashboard() {
             {/* Writer profile card */}
             {(preferences?.writing_style || preferences?.primary_goal || (preferences?.genres?.length ?? 0) > 0) && (
               <div
-                className={`${shell.brutal} flex flex-wrap items-center gap-4 border-violet-400/40 bg-gradient-to-r from-violet-50/40 to-transparent p-4`}
+                className={`${shell.brutal} flex flex-wrap items-center gap-4 border-violet-400/40 bg-card p-4`}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-neutral-900 bg-violet-100">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-secondary">
                   <Sparkles className="h-5 w-5 text-violet-700" aria-hidden />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">Writer profile</p>
                   <div className="mt-1 flex flex-wrap gap-2">
                     {preferences?.writing_style && (
-                      <span className="inline-flex items-center border-2 border-neutral-900 bg-violet-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-900">
+                      <span className="inline-flex items-center border border-border bg-secondary px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-foreground">
                         {preferences.writing_style}
                       </span>
                     )}
                     {preferences?.primary_goal && (
-                      <span className="inline-flex items-center border-2 border-neutral-900 bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-900">
+                      <span className="inline-flex items-center border border-border bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-foreground">
                         {preferences.primary_goal.replace(/_/g, " ")}
                       </span>
                     )}
                     {preferences?.genres?.slice(0, 3).map((g) => (
                       <span
                         key={g}
-                        className="inline-flex items-center border-2 border-neutral-900 bg-teal-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-900"
+                        className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium tracking-wide text-primary"
                       >
                         {g}
                       </span>
                     ))}
                     {preferences?.daily_word_goal && preferences.daily_word_goal > 0 && (
-                      <span className="inline-flex items-center border-2 border-neutral-900 bg-emerald-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-900">
+                      <span className="inline-flex items-center border border-border bg-emerald-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-foreground">
                         {preferences.daily_word_goal.toLocaleString()} words/day
                       </span>
                     )}
@@ -1041,12 +1040,12 @@ export default function Dashboard() {
               <div className="flex min-h-0 flex-col gap-4 lg:col-span-8 lg:h-full">
                 <div
                   id="spark-desk"
-                  className={`${shell.brutal} flex min-h-0 flex-1 flex-col overflow-y-auto border-teal-700/40 bg-gradient-to-b from-[#fffefb] to-teal-50/30 p-4 md:p-5`}
+                  className={`${shell.brutal} flex min-h-0 flex-1 flex-col overflow-y-auto border-border bg-card p-4 md:p-5`}
                 >
                   <p className={shell.title}>Spark desk</p>
                   <p
                     className={cn(
-                      "mt-3 text-base font-semibold leading-snug text-neutral-900 md:text-lg",
+                      "mt-3 text-base font-semibold leading-snug text-foreground md:text-lg",
                       dailySeedPrompt.loading && "animate-pulse text-muted-foreground",
                     )}
                   >
@@ -1057,28 +1056,28 @@ export default function Dashboard() {
                       value={seedText}
                       onChange={(e) => setSeedText(e.target.value)}
                       placeholder="Type your idea here..."
-                      className="flex-1 border-2 border-neutral-900 font-medium shadow-[3px_3px_0_0_rgb(0_0_0_/_0.06)] placeholder:text-muted-foreground/60"
+                      className="flex-1 border border-border font-medium shadow-sm placeholder:text-muted-foreground/60"
                       onKeyDown={(e) => e.key === "Enter" && logSeed()}
                     />
                     <Button
                       type="button"
-                      className="border-2 border-neutral-900 bg-neutral-900 text-white shadow-[4px_4px_0_0_rgb(0_0_0_/_0.15)] hover:bg-neutral-800"
+                      className="border border-border bg-foreground text-background hover:bg-foreground/90"
                       onClick={logSeed}
                     >
                       Log
                     </Button>
                   </div>
                   {lastSeedAi && (lastSeedAi.tags?.length || lastSeedAi.one_line_summary) ? (
-                    <div className="mt-3 rounded-md border border-neutral-200 bg-white/90 px-3 py-2 text-xs">
+                    <div className="mt-3 rounded-md border border-border bg-card/90 px-3 py-2 text-xs">
                       {lastSeedAi.one_line_summary ? (
-                        <p className="font-medium text-neutral-900">{lastSeedAi.one_line_summary}</p>
+                        <p className="font-medium text-foreground">{lastSeedAi.one_line_summary}</p>
                       ) : null}
                       {lastSeedAi.tags && lastSeedAi.tags.length > 0 ? (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {lastSeedAi.tags.map((t) => (
                             <span
                               key={t}
-                              className="rounded-full border border-neutral-300 bg-neutral-50 px-2 py-0.5 text-[10px] uppercase tracking-wide text-neutral-700"
+                              className="rounded-full border border-border bg-accent px-2 py-0.5 text-[10px] uppercase tracking-wide text-neutral-700"
                             >
                               {t}
                             </span>
@@ -1105,7 +1104,7 @@ export default function Dashboard() {
                             size="sm"
                             variant="outline"
                             disabled={stretchBusy !== null}
-                            className="border-2 border-neutral-900 bg-white text-xs"
+                            className="border border-border bg-card text-xs"
                             onClick={() => runStretch(t)}
                           >
                             {stretchBusy === t
@@ -1119,7 +1118,7 @@ export default function Dashboard() {
                         ))}
                       </div>
                       {stretchOut ? (
-                        <pre className="whitespace-pre-wrap rounded-md border border-neutral-200 bg-white p-2 text-xs text-neutral-800">
+                        <pre className="whitespace-pre-wrap rounded-md border border-border bg-card p-2 text-xs text-foreground/80">
                           {stretchOut}
                         </pre>
                       ) : null}
@@ -1127,56 +1126,56 @@ export default function Dashboard() {
                   ) : null}
                 </div>
 
-                <div className={`${shell.brutal} shrink-0 bg-white p-4 md:p-5`}>
+                <div className={`${shell.brutal} shrink-0 bg-card p-4 md:p-5`}>
                   <p className={shell.title}>Quick actions</p>
                   <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                     <button
                       type="button"
                       onClick={() => setOpen(true)}
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-neutral-900 bg-[#fffefb] px-3 py-4 text-center shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] transition-transform hover:-translate-y-0.5"
+                      className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                     >
-                      <Plus className="h-5 w-5 text-neutral-900" />
-                      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-neutral-900">
+                      <Plus className="h-5 w-5 text-foreground" />
+                      <span className="text-xs font-medium text-foreground">
                         New project
                       </span>
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate("/library")}
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-neutral-900 bg-[#fffefb] px-3 py-4 text-center shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] transition-transform hover:-translate-y-0.5"
+                      className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                     >
-                      <BookOpen className="h-5 w-5 text-neutral-900" />
-                      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-neutral-900">
+                      <BookOpen className="h-5 w-5 text-foreground" />
+                      <span className="text-xs font-medium text-foreground">
                         Library
                       </span>
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate("/inbox")}
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-neutral-900 bg-[#fffefb] px-3 py-4 text-center shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] transition-transform hover:-translate-y-0.5"
+                      className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                     >
-                      <Inbox className="h-5 w-5 text-neutral-900" />
-                      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-neutral-900">
+                      <Inbox className="h-5 w-5 text-foreground" />
+                      <span className="text-xs font-medium text-foreground">
                         Idea Web
                       </span>
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate("/stats")}
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-neutral-900 bg-[#fffefb] px-3 py-4 text-center shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] transition-transform hover:-translate-y-0.5"
+                      className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                     >
-                      <BarChart3 className="h-5 w-5 text-neutral-900" />
-                      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-neutral-900">
+                      <BarChart3 className="h-5 w-5 text-foreground" />
+                      <span className="text-xs font-medium text-foreground">
                         Stats
                       </span>
                     </button>
                     <button
                       type="button"
                       onClick={() => openIdeaWebQuickCapture()}
-                      className="flex flex-col items-center gap-2 rounded-xl border-2 border-neutral-900 bg-[#fffefb] px-3 py-4 text-center shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] transition-transform hover:-translate-y-0.5"
+                      className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                     >
-                      <Sparkles className="h-5 w-5 text-neutral-900" />
-                      <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-neutral-900">
+                      <Sparkles className="h-5 w-5 text-foreground" />
+                      <span className="text-xs font-medium text-foreground">
                         Capture idea
                       </span>
                     </button>
@@ -1184,10 +1183,10 @@ export default function Dashboard() {
                       <button
                         type="button"
                         onClick={() => navigate("/settings")}
-                        className="flex flex-col items-center gap-2 rounded-xl border-2 border-neutral-900 bg-[#fffefb] px-3 py-4 text-center shadow-[3px_3px_0_0_rgb(0_0_0_/_0.12)] transition-transform hover:-translate-y-0.5"
+                        className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                       >
-                        <Settings className="h-5 w-5 text-neutral-900" />
-                        <span className="text-[11px] font-bold uppercase leading-tight tracking-wide text-neutral-900">
+                        <Settings className="h-5 w-5 text-foreground" />
+                        <span className="text-xs font-medium text-foreground">
                           Settings
                         </span>
                       </button>
@@ -1198,7 +1197,7 @@ export default function Dashboard() {
 
               <div
                 id="recent-ideas"
-                className={`${shell.brutal} flex min-h-0 flex-col border-teal-700/30 bg-teal-50/80 p-4 md:p-4 lg:col-span-4 lg:h-full`}
+                className={`${shell.brutal} flex min-h-0 flex-col border-border bg-card p-4 md:p-4 lg:col-span-4 lg:h-full`}
               >
                 <p className={shell.title}>Idea Web</p>
                 <form
@@ -1215,13 +1214,13 @@ export default function Dashboard() {
                     placeholder="Capture a spark…"
                     aria-label="Quick idea capture"
                     disabled={inlineCaptureSubmitting}
-                    className="min-w-0 flex-1 rounded-sm border-2 border-teal-700/50 bg-white/70 px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-teal-700 focus:outline-none"
+                    className="min-w-0 flex-1 rounded-sm border border-primary/30 bg-card/70 px-2 py-1 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
                   />
                   <button
                     type="submit"
                     disabled={!inlineCaptureText.trim() || inlineCaptureSubmitting}
                     aria-label="Save idea"
-                    className="shrink-0 rounded-sm border-2 border-teal-700/70 bg-teal-600 px-2 py-1 text-xs font-semibold text-white transition-colors hover:bg-teal-700 disabled:opacity-40"
+                    className="shrink-0 rounded-sm border border-primary/50 bg-primary px-2 py-1 text-xs font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-40"
                   >
                     {inlineCaptureSubmitting ? "…" : "Save"}
                   </button>
@@ -1245,7 +1244,7 @@ export default function Dashboard() {
                       if (items.length === 0) return null;
                       return (
                         <div key={lane}>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-teal-900">
+                          <p className="text-[10px] font-semibold uppercase tracking-wide text-primary">
                             {SPARK_LANE_LABEL[lane]}
                           </p>
                           <ul className="mt-1.5 space-y-1.5">
@@ -1253,13 +1252,13 @@ export default function Dashboard() {
                               <li key={item.id}>
                                 <button
                                   type="button"
-                                  className="w-full rounded-md border border-neutral-200 bg-white/90 px-2 py-1.5 text-left text-xs hover:bg-white"
+                                  className="w-full rounded-md border border-border bg-card/90 px-2 py-1.5 text-left text-xs hover:bg-accent"
                                   onClick={() => navigate(`${ROUTES.inbox}?entry=${encodeURIComponent(item.id)}`)}
                                 >
-                                  <span className="text-[9px] font-semibold uppercase tracking-wide text-teal-800">
+                                  <span className="text-[9px] font-semibold uppercase tracking-wide text-primary">
                                     {item.scope}
                                   </span>
-                                  <p className="text-[13px] leading-snug text-neutral-900">{item.line}</p>
+                                  <p className="text-[13px] leading-snug text-foreground">{item.line}</p>
                                 </button>
                               </li>
                             ))}
@@ -1274,7 +1273,7 @@ export default function Dashboard() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="border-2 border-neutral-900 bg-white"
+                    className="border border-border bg-card"
                     onClick={() => navigate("/inbox")}
                   >
                     Open Idea Web
@@ -1282,7 +1281,7 @@ export default function Dashboard() {
                   <Button
                     type="button"
                     size="sm"
-                    className="border-2 border-neutral-900 bg-teal-600 text-white hover:bg-teal-700"
+                    className="border border-border bg-primary text-white hover:bg-primary/90"
                     onClick={() => openIdeaWebQuickCapture()}
                   >
                     Quick capture
@@ -1291,7 +1290,7 @@ export default function Dashboard() {
                     type="button"
                     size="sm"
                     variant="secondary"
-                    className="border-2 border-neutral-900 bg-white"
+                    className="border border-border bg-card"
                     onClick={() => ideaImportRef.current?.click()}
                   >
                     Import .md
@@ -1310,7 +1309,7 @@ export default function Dashboard() {
             {/* Project overview — manuscript cards */}
             <div>
               <div className="mb-3 flex items-end justify-between gap-2">
-                <h2 className="text-lg font-bold text-neutral-900">Active manuscripts</h2>
+                <h2 className="text-lg font-bold text-foreground">Active manuscripts</h2>
                 <span className="text-xs font-medium text-muted-foreground">
                   {sortedNovels.length === 0 ? "Create a book to get started" : "Open a book to keep writing"}
                 </span>
@@ -1335,9 +1334,9 @@ export default function Dashboard() {
                     return (
                       <div
                         key={novel.id}
-                        className={`${shell.brutal} flex w-full flex-col bg-white p-5 text-left shadow-[5px_5px_0_0_rgb(0_0_0_/_0.1)] transition-transform hover:-translate-y-0.5`}
+                        className={`${shell.brutal} flex w-full flex-col bg-card p-5 text-left shadow-sm transition-transform hover:-translate-y-0.5`}
                       >
-                        <h3 className="font-serif text-xl font-bold leading-snug tracking-tight text-neutral-900 md:text-[1.35rem]">
+                        <h3 className="font-serif text-xl font-bold leading-snug tracking-tight text-foreground md:text-[1.35rem]">
                           {novel.title}
                         </h3>
                         <p className="mt-2 text-[11px] font-bold tracking-[0.25em] text-neutral-600">
@@ -1346,21 +1345,21 @@ export default function Dashboard() {
                         <div className="mt-3 flex flex-wrap gap-2">
                           <span
                             className={cn(
-                              "inline-flex items-center border-2 border-neutral-900 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider",
+                              "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide",
                               status === "COMPLETE"
-                                ? "bg-emerald-200 text-neutral-900"
-                                : "bg-amber-200 text-neutral-900",
+                                ? "bg-emerald-100 dark:bg-emerald-900/30 text-foreground"
+                                : "bg-amber-100 dark:bg-amber-900/30 text-foreground",
                             )}
                           >
                             {status}
                           </span>
                           {featured && (
-                            <span className="inline-flex items-center border-2 border-neutral-900 bg-teal-200 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-neutral-900">
+                            <span className="inline-flex items-center rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-medium tracking-wide text-primary">
                               Featured
                             </span>
                           )}
                         </div>
-                        <div className="mt-5 border-t-2 border-neutral-900 pt-4">
+                        <div className="mt-5 border-t border-border pt-4">
                           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-500">Progress</p>
                           <div className="mt-3 flex items-center gap-4">
                             {/* SVG arc ring */}
@@ -1421,7 +1420,7 @@ export default function Dashboard() {
                           const isStalled = daysSinceUpdate > 30 && novel.status !== "complete";
                           if (!isStalled) return null;
                           return (
-                            <div className="mt-4 rounded-sm border-2 border-amber-400/60 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                            <div className="mt-4 rounded-sm border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
                               <p className="font-semibold">
                                 This project has been quiet for {Math.floor(daysSinceUpdate)} days.
                               </p>
@@ -1433,7 +1432,7 @@ export default function Dashboard() {
                         })()}
                         <Button
                           type="button"
-                          className="mt-5 w-full border-2 border-neutral-900 bg-teal-600 py-6 text-sm font-black uppercase tracking-[0.15em] text-white shadow-[4px_4px_0_0_rgb(0_0_0_/_0.2)] hover:bg-teal-700"
+                          className="mt-5 w-full border border-border bg-primary py-3 text-sm font-semibold text-white hover:bg-primary/90"
                           onClick={openBook}
                         >
                           <PenLine className="mr-2 h-4 w-4" />
@@ -1445,14 +1444,14 @@ export default function Dashboard() {
                 <div
                   key="add-new-project"
                   className={cn(
-                    `${shell.brutal} flex min-h-[220px] flex-col items-center justify-center border-dashed border-teal-600/50 bg-[#fffefb] p-6 text-center`,
-                    sortedNovels.length === 0 && "ring-2 ring-teal-600/30 shadow-[6px_6px_0_0_rgb(13_148_136_/_0.25)]",
+                    `${shell.brutal} flex min-h-[220px] flex-col items-center justify-center border-dashed border-primary/50 bg-card p-6 text-center`,
+                    sortedNovels.length === 0 && "ring-2 ring-primary/20 shadow-md",
                   )}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-teal-700/40 bg-teal-50">
-                    <Plus className="h-6 w-6 text-teal-800" aria-hidden />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-primary/30 bg-primary/5">
+                    <Plus className="h-6 w-6 text-primary" aria-hidden />
                   </div>
-                  <p className="mt-4 text-base font-bold text-neutral-900">New project</p>
+                  <p className="mt-4 text-base font-bold text-foreground">New project</p>
                   <p className="mt-1 max-w-[14rem] text-sm text-muted-foreground">
                     {sortedNovels.length === 0
                       ? "Create your first manuscript — everything saves as you go."
@@ -1460,7 +1459,7 @@ export default function Dashboard() {
                   </p>
                   <Button
                     type="button"
-                    className="mt-5 border-2 border-neutral-900 bg-white px-6 py-5 text-sm font-black uppercase tracking-[0.12em] text-neutral-900 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.15)] hover:bg-neutral-50"
+                    className="mt-5 border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent"
                     onClick={() => setOpen(true)}
                   >
                     <Plus className="mr-2 h-4 w-4" />
@@ -1473,7 +1472,7 @@ export default function Dashboard() {
             {/* Writing checklist + Reminders */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-6">
               <div className="space-y-4 lg:col-span-7">
-                <div className={`${shell.brutal} bg-white p-4 md:p-5`}>
+                <div className={`${shell.brutal} bg-card p-4 md:p-5`}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <p className={shell.title}>Writing checklist</p>
@@ -1484,7 +1483,7 @@ export default function Dashboard() {
                         (one-time). Tap a row to override — saved on this device.
                       </p>
                     </div>
-                    <div className="flex gap-1 rounded-lg border-2 border-neutral-900 bg-neutral-100 p-0.5">
+                    <div className="flex gap-1 rounded-lg border border-border bg-secondary p-0.5">
                       {(["all", "pending", "done"] as const).map((tab) => (
                         <button
                           key={tab}
@@ -1493,7 +1492,7 @@ export default function Dashboard() {
                           className={cn(
                             "rounded-md px-3 py-1 text-xs font-semibold capitalize",
                             taskTab === tab
-                              ? "bg-white text-neutral-900 shadow-sm"
+                              ? "bg-card text-foreground shadow-sm"
                               : "text-muted-foreground hover:text-foreground",
                           )}
                         >
@@ -1508,15 +1507,15 @@ export default function Dashboard() {
                         <button
                           type="button"
                           onClick={() => handleWritingChecklistToggle(task.id)}
-                          className="flex w-full items-center gap-3 rounded-lg border-2 border-transparent px-2 py-2 text-left transition-colors hover:border-neutral-200 hover:bg-neutral-50"
+                          className="flex w-full items-center gap-3 rounded-lg border border-transparent px-2 py-2 text-left transition-colors hover:border-border hover:bg-accent"
                         >
                           <span
                             className={cn(
-                              "flex h-8 w-8 shrink-0 items-center justify-center rounded border-2 border-neutral-900",
-                              task.done ? "bg-emerald-400" : "bg-white",
+                              "flex h-8 w-8 shrink-0 items-center justify-center rounded border border-border",
+                              task.done ? "bg-emerald-400 dark:bg-emerald-600" : "bg-card",
                             )}
                           >
-                            {task.done ? <Check className="h-4 w-4 text-neutral-900" /> : null}
+                            {task.done ? <Check className="h-4 w-4 text-foreground" /> : null}
                           </span>
                           <span
                             className={cn(
@@ -1530,26 +1529,26 @@ export default function Dashboard() {
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-4 rounded-xl border-2 border-neutral-900 bg-[#fff4d6] p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-900">Odyssey</p>
+                  <div className="mt-4 rounded-xl border border-border bg-secondary p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">Odyssey</p>
                     <p className="mt-0.5 text-[10px] font-medium text-neutral-600">
-                      <span className="font-semibold text-neutral-800">Volume</span> rank from your primary manuscript
+                      <span className="font-semibold text-foreground/80">Volume</span> rank from your primary manuscript
                       (active book, else most recently updated) — not the habit checklist above.
                     </p>
                     {novels.length === 0 ? (
-                      <p className="mt-2 text-sm text-neutral-800">
+                      <p className="mt-2 text-sm text-foreground/80">
                         No manuscript yet — create or open a book to see Odyssey tier progress here.
                       </p>
                     ) : (
                       <>
                         {primaryNovel && (
-                          <p className="mt-2 text-xs font-semibold text-neutral-900">{primaryNovel.title}</p>
+                          <p className="mt-2 text-xs font-semibold text-foreground">{primaryNovel.title}</p>
                         )}
                         <p className="mt-1 text-xs text-neutral-700">
                           {primaryWordCount.toLocaleString()} words in this manuscript · next badge:{" "}
                           {odysseyProgress.nextBadge}
                         </p>
-                        <p className="mt-1 flex items-center gap-1 text-sm font-bold text-neutral-900">
+                        <p className="mt-1 flex items-center gap-1 text-sm font-bold text-foreground">
                           <Trophy className="h-4 w-4 shrink-0" aria-hidden />
                           {odysseyProgress.rank}
                         </p>
@@ -1568,7 +1567,7 @@ export default function Dashboard() {
                           <p className="mt-1 text-[10px] text-neutral-600">Progress within current Odyssey tier</p>
                         </div>
                         {odysseyProgress.atMaxTier && (
-                          <p className="mt-1 text-xs font-medium text-amber-900">
+                          <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-300">
                             Top Odyssey tier for this manuscript.
                           </p>
                         )}
@@ -1578,7 +1577,7 @@ export default function Dashboard() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="mt-3 w-full border-2 border-neutral-900 bg-white sm:w-auto"
+                      className="mt-3 w-full border border-border bg-card sm:w-auto"
                       onClick={() => navigate(ROUTES.odyssey)}
                     >
                       Open Writer&apos;s Odyssey
@@ -1592,14 +1591,14 @@ export default function Dashboard() {
               </div>
 
               <div className="flex flex-col gap-4 lg:col-span-5">
-                <div className={`${shell.brutal} bg-teal-50 p-4`} id="deadlines">
+                <div className={`${shell.brutal} bg-secondary p-4`} id="deadlines">
                   <p className={shell.title}>Reminders</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     Weekly progress uses your writing stats (Mon–today). Idea rows use reminders set on Idea Web
                     entries.
                   </p>
                   {reminderBlock.ideaReminderTotal === 0 && (
-                    <p className="mt-2 rounded-md border border-dashed border-neutral-300 bg-white/70 px-3 py-2 text-xs text-muted-foreground">
+                    <p className="mt-2 rounded-md border border-dashed border-border bg-card/70 px-3 py-2 text-xs text-muted-foreground">
                       No idea reminders yet. Open Idea Web, open an idea, and set a reminder — it will appear here.
                     </p>
                   )}
@@ -1608,14 +1607,14 @@ export default function Dashboard() {
                       <li
                         key={row.id}
                         className={cn(
-                          "rounded-lg border-2 border-neutral-900 bg-white p-3",
+                          "rounded-lg border border-border bg-card p-3",
                           row.kind === "idea_reminder" && row.isOverdue && "border-amber-700 bg-amber-50/80",
                         )}
                       >
                         {row.kind === "weekly_goal" ? (
                           <>
-                            <span className="text-xs font-semibold text-teal-800">{row.badge}</span>
-                            <p className="font-semibold text-neutral-900">{row.title}</p>
+                            <span className="text-xs font-semibold text-primary">{row.badge}</span>
+                            <p className="font-semibold text-foreground">{row.title}</p>
                             <p className="text-xs text-muted-foreground">{row.subtitle}</p>
                           </>
                         ) : (
@@ -1628,17 +1627,17 @@ export default function Dashboard() {
                                 navigate(`${ROUTES.inbox}?entry=${encodeURIComponent(row.entryId)}`);
                               }}
                             >
-                              <span className="text-xs font-semibold text-teal-800">{row.badge}</span>
-                              <p className="font-semibold text-neutral-900">{row.title}</p>
+                              <span className="text-xs font-semibold text-primary">{row.badge}</span>
+                              <p className="font-semibold text-foreground">{row.title}</p>
                               <p className="text-xs text-muted-foreground">{row.subtitle}</p>
-                              <p className="mt-1 text-[10px] font-medium text-teal-700">Open in Idea Web →</p>
+                              <p className="mt-1 text-[10px] font-medium text-primary">Open in Idea Web →</p>
                             </button>
                             <div className="flex shrink-0 gap-1 self-end sm:self-start">
                               <Button
                                 type="button"
                                 size="icon"
                                 variant="outline"
-                                className="h-8 w-8 border-neutral-900"
+                                className="h-8 w-8 border-border"
                                 aria-label={`Clear reminder for ${row.title}`}
                                 onClick={() => {
                                   trackEvent("dashboard_reminder_idea_clear", { entryId: row.entryId });
@@ -1651,7 +1650,7 @@ export default function Dashboard() {
                                 type="button"
                                 size="icon"
                                 variant="outline"
-                                className="h-8 w-8 border-neutral-900"
+                                className="h-8 w-8 border-border"
                                 aria-label={`Snooze reminder by one day for ${row.title}`}
                                 onClick={() => {
                                   const entry = ideaWebEntries.find((e) => e.id === row.entryId);
@@ -1674,7 +1673,7 @@ export default function Dashboard() {
                     <div className="mt-3 text-center">
                       <button
                         type="button"
-                        className="text-xs font-semibold text-teal-800 underline decoration-teal-600/50 underline-offset-2 hover:text-teal-900"
+                        className="text-xs font-semibold text-primary underline decoration-teal-600/50 underline-offset-2 hover:text-primary"
                         onClick={() => navigate(ROUTES.inbox)}
                       >
                         View all {reminderBlock.ideaReminderTotal} in Idea Web
@@ -1737,7 +1736,7 @@ export default function Dashboard() {
                   setNewCoverImageDataUrl("");
                   setCreateStep(1);
                 }}
-                className="ml-4 shrink-0 text-xs font-semibold text-amber-700 underline hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100"
+                className="ml-4 shrink-0 text-xs font-semibold text-amber-700 underline hover:text-amber-700 dark:text-amber-300 dark:text-amber-300 dark:hover:text-amber-100"
               >
                 Start fresh
               </button>
@@ -1898,7 +1897,7 @@ export default function Dashboard() {
               </p>
             )}
             {formWarning && !formError && (
-              <p className="rounded-sm border-2 border-amber-500/40 bg-amber-500/10 px-2 py-1 text-xs text-amber-800 dark:text-amber-300">
+              <p className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-2 py-1 text-xs text-amber-700 dark:text-amber-300">
                 {formWarning}
               </p>
             )}
@@ -1915,7 +1914,7 @@ export default function Dashboard() {
                 {createStep < 3 ? (
                   <Button
                     type="button"
-                    className="w-full bg-teal-600 hover:bg-teal-700 sm:min-w-[120px]"
+                    className="w-full bg-primary hover:bg-primary/90 sm:min-w-[120px]"
                     onClick={createStep === 1 ? goNextFromStep1 : goNextFromStep2}
                   >
                     Next
@@ -1923,7 +1922,7 @@ export default function Dashboard() {
                 ) : (
                   <Button
                     type="button"
-                    className="w-full bg-teal-600 hover:bg-teal-700 sm:min-w-[160px]"
+                    className="w-full bg-primary hover:bg-primary/90 sm:min-w-[160px]"
                     onClick={handleCreate}
                   >
                     Create book

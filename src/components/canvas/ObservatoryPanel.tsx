@@ -90,9 +90,9 @@ function computeMetrics(novel: Novel, beats: { id: string; title: string }[]) {
   // Orphan scenes (no beat, no POV, no summary)
   const orphanScenes = scenes.filter((s) => !s.beatId && !s.pov && !s.summary);
 
-  // Codex coverage
-  const codexCount = novel.codexEntries.length;
-  const codexInScenes = novel.codexEntries.filter((e) =>
+  // Story Wiki coverage
+  const codexCount = novel.storyWikiEntries.length;
+  const codexInScenes = novel.storyWikiEntries.filter((e) =>
     scenes.some((s) => s.characters.includes(e.name) || s.location === e.name || (s.codexRefs ?? []).includes(e.id)),
   ).length;
   const codexCoverage = codexCount > 0 ? Math.round((codexInScenes / codexCount) * 100) : 0;
@@ -766,11 +766,11 @@ export function ObservatoryPanel() {
           </div>
         )}
 
-        {/* Codex coverage */}
+        {/* Story Wiki coverage */}
         {metrics.codexCount > 0 && (
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground">Codex Entry Coverage</span>
+              <span className="text-xs font-semibold text-muted-foreground">Story Wiki Entry Coverage</span>
               <span className="text-xs font-mono text-foreground">
                 {metrics.codexInScenes}/{metrics.codexCount} entries — {metrics.codexCoverage}%
               </span>

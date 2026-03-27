@@ -597,7 +597,7 @@ export default function WriteView() {
         >
           +
         </button>
-        {activeNovel.codexEntries.slice(0, 8).map((entry) => {
+        {activeNovel.storyWikiEntries.slice(0, 8).map((entry) => {
           const linked = (scene.codexRefs || []).includes(entry.id);
           return (
             <button

@@ -132,7 +132,7 @@ VALUES (
         ]
       }
     ],
-    "codexEntries": [
+    "storyWikiEntries": [
       {
         "id": "codex-001",
         "name": "Maren Solvaas",
@@ -196,7 +196,7 @@ VALUES (
         ]
       }
     ],
-    "codexEntries": [],
+    "storyWikiEntries": [],
     "ideas": [],
     "brainstormNotes": [],
     "reviewAnnotations": []

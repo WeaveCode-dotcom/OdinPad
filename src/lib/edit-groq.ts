@@ -78,7 +78,9 @@ async function messageFromFunctionsError(error: unknown): Promise<string> {
         const t = await response.text();
         if (t?.trim()) return t.trim().slice(0, 500);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     if (response.status === 401) {
       return "Invalid or expired session. Sign out and sign in again.";
     }

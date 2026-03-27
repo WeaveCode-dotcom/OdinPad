@@ -37,7 +37,7 @@ export function SortableSeriesBookCard({
     <div ref={setNodeRef} style={style} className={cn("relative flex gap-0", isDragging && "z-20 opacity-90")}>
       <button
         type="button"
-        className="touch-none flex w-9 shrink-0 items-center justify-center rounded-l-md border-2 border-r-0 border-neutral-900 bg-muted/50 text-muted-foreground hover:bg-muted"
+        className="touch-none flex w-9 shrink-0 items-center justify-center rounded-l-md border border-r-0 border-border bg-secondary text-muted-foreground hover:bg-accent"
         aria-label="Drag to reorder in series"
         {...attributes}
         {...listeners}

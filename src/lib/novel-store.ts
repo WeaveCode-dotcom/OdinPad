@@ -2,7 +2,7 @@ import { deleteNovelRow, fetchNovelRows, upsertNovelRows } from "@/api/novels";
 import type { Json, TablesInsert } from "@/integrations/supabase/types";
 import type { WordCountPresetId } from "@/lib/book-metadata";
 import type { BookAudience, BookPov, BookTense } from "@/lib/book-metadata";
-import { Act, BrainstormNote, BrainstormNoteColor, Chapter, CodexEntry, Idea, Novel, Scene } from "@/types/novel";
+import { Act, BrainstormNote, BrainstormNoteColor, Chapter, Idea, Novel, Scene, StoryWikiEntry } from "@/types/novel";
 
 let idCounter = 0;
 const genId = () => `id_${++idCounter}_${Date.now()}`;
@@ -87,7 +87,7 @@ function normalizeNovel(row: {
     frameworkId: raw.frameworkId ?? "three-act",
     customBeats: raw.customBeats ?? [],
     acts: raw.acts ?? [],
-    codexEntries: raw.codexEntries ?? [],
+    storyWikiEntries: raw.storyWikiEntries ?? (raw as { codexEntries?: StoryWikiEntry[] }).codexEntries ?? [],
     ideas: raw.ideas ?? [],
     brainstormNotes: (raw.brainstormNotes ?? []).map(migrateBrainstormNoteColor),
     reviewAnnotations: raw.reviewAnnotations,
@@ -256,7 +256,7 @@ export function createNovel(title: string, author: string): Novel {
         ],
       },
     ],
-    codexEntries: [],
+    storyWikiEntries: [],
     brainstormNotes: [],
   };
 }
@@ -310,9 +310,24 @@ export function createNovelWithOptions(title: string, author: string, options: C
   };
 }
 
-export function createCodexEntry(type: CodexEntry["type"], name: string): CodexEntry {
-  return { id: genId(), type, name, description: "", notes: "", tags: [] };
+export function createStoryWikiEntry(type: StoryWikiEntry["type"], name: string): StoryWikiEntry {
+  return {
+    id: genId(),
+    type,
+    name,
+    status: "draft",
+    description: "",
+    notes: "",
+    tags: [],
+    progressions: [],
+    relationships: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 }
+
+/** @deprecated Use createStoryWikiEntry instead. */
+export const createCodexEntry = createStoryWikiEntry;
 
 export function createAct(order: number): Act {
   return { id: genId(), title: `Act ${order + 1}`, order, chapters: [] };
@@ -404,10 +419,11 @@ export function createDemoNovel(): Novel {
     ],
   });
 
-  novel.codexEntries = [
+  novel.storyWikiEntries = [
     {
       id: genId(),
       type: "character",
+      status: "published",
       name: "Elara Voss",
       description: "A 28-year-old archaeologist and librarian. Curious, determined, sometimes reckless.",
       notes: "Motivated by her late grandmother's stories about the old world.",
@@ -416,6 +432,7 @@ export function createDemoNovel(): Novel {
     {
       id: genId(),
       type: "character",
+      status: "published",
       name: "Marcus Chen",
       description: "Elara's childhood friend and a structural engineer. Pragmatic and cautious, but fiercely loyal.",
       notes: "Reluctant adventurer.",
@@ -424,6 +441,7 @@ export function createDemoNovel(): Novel {
     {
       id: genId(),
       type: "location",
+      status: "published",
       name: "The Old Library",
       description: "A centuries-old library in the university district.",
       notes: "Where the map is discovered. Has secret basement levels.",
@@ -432,6 +450,7 @@ export function createDemoNovel(): Novel {
     {
       id: genId(),
       type: "location",
+      status: "published",
       name: "The Forgotten City",
       description: "An ancient underground city beneath the Thornhill countryside.",
       notes: "Reveal gradually. Full scope not understood until Act III.",
@@ -440,6 +459,7 @@ export function createDemoNovel(): Novel {
     {
       id: genId(),
       type: "lore",
+      status: "draft",
       name: "The Builders",
       description: "The unknown civilization that constructed the Forgotten City.",
       notes: "Central mystery of the story.",

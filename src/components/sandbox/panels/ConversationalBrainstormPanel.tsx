@@ -21,16 +21,16 @@ function novelIdFromScope(scope: "all" | "unassigned" | string): string | null {
 export function ConversationalBrainstormPanel({ novelScope }: { novelScope: "all" | "unassigned" | string }) {
   const { user } = useAuth();
   const { activeNovel } = useNovelContext();
-  const [codexId, setCodexId] = useState<string>("");
+  const [storyWikiId, setStoryWikiId] = useState<string>("");
   const [userMsg, setUserMsg] = useState("");
   const [transcript, setTranscript] = useState<SandboxTranscriptMessage[]>([]);
   const [convId, setConvId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<SandboxConversation[]>([]);
 
-  const characters = activeNovel?.codexEntries.filter((c) => c.type === "character") ?? [];
+  const characters = activeNovel?.storyWikiEntries.filter((c) => c.type === "character") ?? [];
 
-  const selected = characters.find((c) => c.id === codexId);
+  const selected = characters.find((c) => c.id === storyWikiId);
 
   const loadHistory = useCallback(async () => {
     if (!user?.id) return;
@@ -84,7 +84,7 @@ export function ConversationalBrainstormPanel({ novelScope }: { novelScope: "all
         elementId: selected.id,
         title: `${selected.name} — sparring`,
         transcript: full,
-        metadata: { codexName: selected.name },
+        metadata: { storyWikiName: selected.name },
       });
       setConvId(saved.id);
       trackEvent("sandbox_conversation", { character: selected.id });
@@ -106,7 +106,7 @@ export function ConversationalBrainstormPanel({ novelScope }: { novelScope: "all
     if (!c) return;
     setConvId(c.id);
     setTranscript(c.transcript);
-    if (c.elementId) setCodexId(c.elementId);
+    if (c.elementId) setStoryWikiId(c.elementId);
   };
 
   return (
@@ -116,7 +116,7 @@ export function ConversationalBrainstormPanel({ novelScope }: { novelScope: "all
           Character sparring: the assistant asks questions only—no dialogue or prose written for you.
         </p>
         <div className="flex flex-wrap gap-2">
-          <Select value={codexId || ""} onValueChange={setCodexId}>
+          <Select value={storyWikiId || ""} onValueChange={setStoryWikiId}>
             <SelectTrigger className="w-[260px] border border-border">
               <SelectValue placeholder="Choose a character from Story Wiki" />
             </SelectTrigger>

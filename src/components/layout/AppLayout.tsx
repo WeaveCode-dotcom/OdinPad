@@ -106,14 +106,14 @@ function AppLayoutInner({ children }: { children: ReactNode }) {
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:border-2 focus:border-teal-500 focus:bg-[#141414] focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-md focus:border focus:border-primary focus:bg-background focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
       >
         Skip to main content
       </a>
-      <div className="flex h-dvh min-h-0 w-full max-h-dvh flex-col overflow-hidden bg-[#0c0c0c] md:flex-row">
+      <div className="flex h-dvh min-h-0 w-full max-h-dvh flex-col overflow-hidden bg-sidebar md:flex-row">
         <aside
           className={cn(
-            "hidden h-full min-h-0 shrink-0 flex-col overflow-hidden border-r border-zinc-800 bg-[#141414] text-zinc-100 transition-[width] duration-300 ease-out md:flex",
+            "hidden h-full min-h-0 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-[width] duration-300 ease-out md:flex",
             sidebarCollapsed ? "w-[72px]" : "w-[260px]",
           )}
           aria-label="Main navigation"
@@ -124,7 +124,7 @@ function AppLayoutInner({ children }: { children: ReactNode }) {
         <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
           <SheetContent
             side="left"
-            className="flex w-[min(100vw-2rem,280px)] flex-col border-r-2 border-zinc-800 bg-[#141414] p-0 text-zinc-100"
+            className="flex w-[min(100vw-2rem,280px)] flex-col border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
           >
             <SheetTitle className="sr-only">OdinPad navigation</SheetTitle>
             <AppSidebar {...sidebarProps} collapsed={false} />
@@ -142,9 +142,9 @@ function AppLayoutInner({ children }: { children: ReactNode }) {
         <main
           id="main-content"
           tabIndex={-1}
-          className="dashboard-main flex min-h-0 min-w-0 flex-1 flex-col outline-none"
+          className="flex min-h-0 min-w-0 flex-1 flex-col bg-background outline-none"
         >
-          <div className="h-1 shrink-0 bg-teal-600" aria-hidden />
+          <div className="h-px shrink-0 bg-border" aria-hidden />
           <div className="flex min-h-0 flex-1 flex-col overflow-auto">{children}</div>
         </main>
       </div>

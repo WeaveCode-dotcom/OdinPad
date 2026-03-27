@@ -563,7 +563,7 @@ export function IdeaWebInboxView() {
       className={cn("w-full max-w-none p-3 sm:p-4", selected.size > 0 && "pb-24")}
     >
       {wordDraftNotice && (
-        <div className="-mx-3 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-50 px-3 py-2 text-xs text-amber-950 sm:-mx-4 sm:px-4">
+        <div className="-mx-3 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/30 bg-amber-50/50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-950/30 dark:text-amber-300 sm:-mx-4 sm:px-4">
           <span>Pending Word import draft ({new Date(wordDraftNotice.savedAt).toLocaleString()})</span>
           <span className="flex gap-2">
             <Button
@@ -710,7 +710,7 @@ export function IdeaWebInboxView() {
               <Filter className="h-4 w-4 text-muted-foreground" aria-hidden />
               More filters & bulk actions
               {activeFilterCount > 0 ? (
-                <span className="rounded-full bg-teal-600/15 px-2 py-0.5 text-[10px] font-semibold text-teal-800">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
                   {activeFilterCount} active
                 </span>
               ) : null}
@@ -839,7 +839,7 @@ export function IdeaWebInboxView() {
                   <div className="flex flex-wrap items-center justify-center gap-2">
                     <Button
                       type="button"
-                      className="gap-2 border-2 border-neutral-900 bg-teal-600 text-white shadow-brutal-sm hover:bg-teal-700"
+                      className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                       onClick={() => openIdeaWebQuickCapture()}
                     >
                       <Plus className="h-4 w-4" />

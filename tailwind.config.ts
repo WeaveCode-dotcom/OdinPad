@@ -17,9 +17,6 @@ export default {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       colors: {
-        studio: {
-          cream: "#fdfbf0",
-        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -65,9 +62,13 @@ export default {
         },
       },
       boxShadow: {
-        brutal: "4px 4px 0 0 rgb(0 0 0 / 0.12)",
-        "brutal-sm": "3px 3px 0 0 rgb(0 0 0 / 0.12)",
-        "brutal-md": "4px 4px 0 0 rgb(0 0 0 / 0.15)",
+        "card": "0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.05)",
+        "card-md": "0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05)",
+        "card-lg": "0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05)",
+        /* Legacy brutal aliases — kept so old usages don't crash during migration */
+        brutal: "0 1px 3px 0 rgb(0 0 0 / 0.07)",
+        "brutal-sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "brutal-md": "0 4px 6px -1px rgb(0 0 0 / 0.07)",
       },
       borderRadius: {
         lg: "var(--radius)",

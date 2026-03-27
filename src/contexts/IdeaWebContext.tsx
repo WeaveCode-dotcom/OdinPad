@@ -16,9 +16,9 @@ import {
   suggestAutoStatus,
   updateIdeaWebEntry,
 } from "@/lib/idea-web";
-import { createCodexEntry } from "@/lib/novel-store";
+import { createStoryWikiEntry } from "@/lib/novel-store";
 import type { IdeaWebEntry, IdeaWebLink, IdeaWebRevisionSnapshot, IdeaWebStatus } from "@/types/idea-web";
-import type { CodexEntry, Idea, Novel } from "@/types/novel";
+import type { Idea, Novel, StoryWikiEntry, CodexEntry } from "@/types/novel";
 
 const IDEA_WEB_SAVE_DEBOUNCE_MS = 500;
 const IDEA_WEB_EDIT_REVISION_MIN_MS = 30_000;
@@ -71,7 +71,7 @@ export function useIdeaWebContext(): IdeaWebContextType {
 
 interface IdeaWebProviderProps {
   children: React.ReactNode;
-  /** Passed by NovelProvider so harvestIdeaWebEntries can add codex stubs without a cross-context ref. */
+  /** Passed by NovelProvider so harvestIdeaWebEntries can add Story Wiki stubs without a cross-context ref. */
   setNovels: React.Dispatch<React.SetStateAction<Novel[]>>;
 }
 
@@ -198,24 +198,24 @@ export function IdeaWebProvider({ children, setNovels }: IdeaWebProviderProps) {
         setNovels((prev) =>
           prev.map((novel) => {
             if (novel.id !== targetNovelId) return novel;
-            let codex = [...novel.codexEntries];
+            let storyWiki = [...novel.storyWikiEntries];
             for (const entry of entries) {
               const t = (entry.ideaType || entry.category || "").toLowerCase();
               if (t === "character") {
-                const ce = createCodexEntry("character", entry.title.slice(0, 120) || "Character");
+                const ce = createStoryWikiEntry("character", entry.title.slice(0, 120) || "Character");
                 ce.description = entry.body.slice(0, 4000);
                 ce.notes = "Harvested from Idea Web";
                 ce.tags = [...entry.tags];
-                codex = [...codex, ce];
+                storyWiki = [...storyWiki, ce];
               } else if (t === "world") {
-                const ce = createCodexEntry("location", entry.title.slice(0, 120) || "Location");
+                const ce = createStoryWikiEntry("location", entry.title.slice(0, 120) || "Location");
                 ce.description = entry.body.slice(0, 4000);
                 ce.notes = "Harvested from Idea Web";
                 ce.tags = [...entry.tags];
-                codex = [...codex, ce];
+                storyWiki = [...storyWiki, ce];
               }
             }
-            return { ...novel, codexEntries: codex, updatedAt: new Date().toISOString() };
+            return { ...novel, storyWikiEntries: storyWiki, updatedAt: new Date().toISOString() };
           }),
         );
       }

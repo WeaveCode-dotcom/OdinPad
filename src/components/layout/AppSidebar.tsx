@@ -8,11 +8,13 @@ import {
   Kanban,
   LayoutDashboard,
   LogOut,
+  Moon,
   PanelLeft,
   PanelLeftClose,
   Settings,
   Shield,
   Sparkles,
+  Sun,
   Upload,
 } from "lucide-react";
 import { type NavigateFunction, useLocation } from "react-router-dom";
@@ -28,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/contexts/AuthContext";
 import { featureFlags } from "@/lib/feature-flags";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -68,6 +71,13 @@ export function AppSidebar({
 }: AppSidebarProps) {
   const close = () => onCloseMobile?.();
   const { pathname } = useLocation();
+  const { preferences, updatePreferences } = useAuth();
+
+  const isDark = preferences?.theme === "dark";
+
+  const toggleTheme = () => {
+    void updatePreferences({ theme: isDark ? "light" : "dark" });
+  };
 
   const displayName = user?.name?.split(/\s+/)[0] ?? "Writer";
 
@@ -78,11 +88,11 @@ export function AppSidebar({
 
   const navBtn = (active: boolean) =>
     cn(
-      "flex min-h-[44px] w-full items-center gap-3 rounded-lg py-2.5 text-left text-sm font-medium transition-colors md:min-h-0",
+      "flex min-h-[44px] w-full items-center gap-3 rounded-md py-2 text-left text-sm font-medium transition-colors md:min-h-0",
       collapsed ? "justify-center px-2" : "px-3",
       active
-        ? "bg-teal-600 text-white shadow-[3px_3px_0_0_rgb(0_0_0_/_0.25)]"
-        : "text-zinc-400 hover:bg-zinc-800 hover:text-white",
+        ? "bg-sidebar-primary/10 text-sidebar-primary font-semibold"
+        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
     );
 
   const NavItem = ({
@@ -111,7 +121,7 @@ export function AppSidebar({
         <Icon className="h-4 w-4 shrink-0" aria-hidden />
         {!collapsed && <span className="flex-1 truncate">{label}</span>}
         {!collapsed && badge != null && badge > 0 && (
-          <span className="rounded-full bg-teal-500/50 px-2 py-0.5 text-xs font-semibold tabular-nums text-white">
+          <span className="rounded-full bg-sidebar-primary/15 px-2 py-0.5 text-xs font-semibold tabular-nums text-sidebar-primary">
             {badge > 99 ? "99+" : badge}
           </span>
         )}
@@ -122,7 +132,7 @@ export function AppSidebar({
       return (
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>{button}</TooltipTrigger>
-          <TooltipContent side="right" className="border-2 border-neutral-900 bg-[#fdfbf0] font-medium">
+          <TooltipContent side="right" className="font-medium">
             {label}
             {badge != null && badge > 0 ? ` (${badge})` : ""}
           </TooltipContent>
@@ -134,7 +144,8 @@ export function AppSidebar({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className={cn("shrink-0 border-b border-zinc-800 pb-4 pt-6", collapsed ? "px-2" : "px-4")}>
+      {/* Logo / brand */}
+      <div className={cn("shrink-0 border-b border-sidebar-border pb-4 pt-6", collapsed ? "px-2" : "px-4")}>
         <div className="flex items-start gap-2">
           <button
             type="button"
@@ -144,20 +155,20 @@ export function AppSidebar({
             }}
             aria-label="OdinPad home"
             className={cn(
-              "flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left transition-opacity hover:opacity-90",
+              "flex min-w-0 flex-1 items-center gap-2 rounded-md text-left transition-colors hover:bg-sidebar-accent",
               collapsed && "justify-center",
             )}
           >
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-teal-500/60 bg-teal-600/25"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"
               aria-hidden
             >
-              <Sparkles className="h-5 w-5 text-teal-300" />
+              <Sparkles className="h-4.5 w-4.5" />
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <p className="text-lg font-bold tracking-tight text-white">OdinPad</p>
-                <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">Studio</p>
+                <p className="text-base font-semibold tracking-tight text-sidebar-foreground">OdinPad</p>
+                <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Studio</p>
               </div>
             )}
           </button>
@@ -167,7 +178,7 @@ export function AppSidebar({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="hidden min-h-11 min-w-11 shrink-0 text-zinc-400 hover:bg-zinc-800 hover:text-white md:inline-flex md:min-h-9 md:min-w-9"
+                className="hidden min-h-11 min-w-11 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:inline-flex md:min-h-8 md:min-w-8"
                 onClick={onToggleCollapse}
                 aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
@@ -178,14 +189,15 @@ export function AppSidebar({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="border-2 border-neutral-900 bg-[#fdfbf0]">
+            <TooltipContent side="bottom">
               {collapsed ? "Expand sidebar" : "Collapse sidebar"}
             </TooltipContent>
           </Tooltip>
         </div>
       </div>
 
-      <nav className="flex shrink-0 flex-col gap-1 overflow-hidden px-2 py-4" aria-label="Workspace">
+      {/* Navigation */}
+      <nav className="flex shrink-0 flex-col gap-0.5 overflow-hidden px-2 py-3" aria-label="Workspace">
         <NavItem to="/" icon={LayoutDashboard} label="Dashboard" />
         <NavItem to={ROUTES.odyssey} icon={Compass} label="Odyssey" />
         <NavItem to="/stats" icon={BarChart3} label="Stats" />
@@ -195,10 +207,13 @@ export function AppSidebar({
         {settingsEnabled && <NavItem to="/settings" icon={Settings} label="Settings" />}
       </nav>
 
+      {/* Projects list */}
       {!collapsed && (
-        <div className="shrink-0 border-t border-zinc-800 px-3 py-3">
-          <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Projects</p>
-          <ul className="space-y-1">
+        <div className="shrink-0 border-t border-sidebar-border px-3 py-3">
+          <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Projects
+          </p>
+          <ul className="space-y-0.5">
             {novels.slice(0, 4).map((n) => (
               <li key={n.id}>
                 <button
@@ -208,28 +223,30 @@ export function AppSidebar({
                     navigate("/", { replace: true });
                     close();
                   }}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-600 bg-zinc-800 text-[10px] font-bold text-teal-300">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[10px] font-bold text-primary">
                     {n.title.slice(0, 1).toUpperCase()}
                   </span>
                   <span className="truncate font-medium">{n.title}</span>
                 </button>
               </li>
             ))}
-            {novels.length === 0 && <li className="px-2 text-xs text-zinc-500">No projects yet</li>}
+            {novels.length === 0 && <li className="px-2 text-xs text-muted-foreground">No projects yet</li>}
           </ul>
-          {ideaWebTotal > 0 && <p className="mt-2 px-2 text-[10px] text-zinc-500">{ideaWebTotal} ideas in Idea Web</p>}
+          {ideaWebTotal > 0 && (
+            <p className="mt-2 px-2 text-[10px] text-muted-foreground">{ideaWebTotal} ideas in Idea Web</p>
+          )}
         </div>
       )}
 
       {collapsed && novels.length > 0 && (
-        <div className="shrink-0 border-t border-zinc-800 px-2 py-2">
+        <div className="shrink-0 border-t border-sidebar-border px-2 py-2">
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="mx-auto flex min-h-11 min-w-11 items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-800 hover:text-white md:min-h-0 md:min-w-0"
+                className="mx-auto flex min-h-11 min-w-11 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:min-h-0 md:min-w-0"
                 onClick={() => {
                   navigate("/library");
                   close();
@@ -239,93 +256,117 @@ export function AppSidebar({
                 <BookOpen className="h-4 w-4" aria-hidden />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" className="max-w-[220px] border-2 border-neutral-900 bg-[#fdfbf0] text-xs">
+            <TooltipContent side="right" className="max-w-[220px] text-xs">
               {novels.length} project{novels.length === 1 ? "" : "s"} — open Library
             </TooltipContent>
           </Tooltip>
         </div>
       )}
 
-      <div className="mt-auto shrink-0 border-t border-zinc-800 p-2">
+      {/* Bottom: theme toggle + user menu */}
+      <div className="mt-auto shrink-0 border-t border-sidebar-border p-2">
         <div
           className={cn(
-            "flex items-center gap-2 rounded-lg bg-zinc-900/80 p-2",
+            "flex items-center gap-2 rounded-lg bg-sidebar-accent/50 p-2",
             collapsed && "flex-col justify-center gap-2",
           )}
         >
-          <Avatar className={cn("border-2 border-zinc-700", collapsed ? "h-10 w-10" : "h-9 w-9")}>
+          <Avatar className={cn("border border-sidebar-border", collapsed ? "h-9 w-9" : "h-8 w-8")}>
             {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt="" /> : null}
-            <AvatarFallback className="bg-teal-600 text-xs font-bold text-white">
+            <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
               {displayName.slice(0, 1)}
             </AvatarFallback>
           </Avatar>
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-zinc-100">{user?.name ?? "Writer"}</p>
-              <p className="truncate text-[10px] text-zinc-500">Workspace</p>
+              <p className="truncate text-sm font-medium text-sidebar-foreground">{user?.name ?? "Writer"}</p>
+              <p className="truncate text-[10px] text-muted-foreground">Workspace</p>
             </div>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "min-h-11 min-w-11 shrink-0 text-zinc-400 hover:bg-zinc-800 hover:text-white md:min-h-8 md:min-w-8",
-                  collapsed ? "h-8 w-8" : "h-8 w-8",
-                )}
-                aria-label="Account, import, export, and sign out"
-              >
-                <Settings className="h-4 w-4" aria-hidden />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 border-2 border-neutral-900 bg-[#fdfbf0]">
-              <DropdownMenuItem
-                onClick={() => {
-                  onSecurity();
-                  close();
-                }}
-              >
-                <Shield className="mr-2 h-3.5 w-3.5" />
-                Security
-              </DropdownMenuItem>
-              {settingsEnabled && (
+          <div className="flex items-center gap-1">
+            {/* Theme toggle */}
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  onClick={toggleTheme}
+                  aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side={collapsed ? "right" : "top"}>
+                {isDark ? "Light mode" : "Dark mode"}
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Account menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  aria-label="Account, import, export, and sign out"
+                >
+                  <Settings className="h-4 w-4" aria-hidden />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                  {user?.name ?? "Account"}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={() => {
-                    navigate("/settings");
+                    onSecurity();
                     close();
                   }}
                 >
-                  <Settings className="mr-2 h-3.5 w-3.5" />
-                  Settings
+                  <Shield className="mr-2 h-3.5 w-3.5" />
+                  Security
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem
-                onClick={() => {
-                  onImport();
-                  close();
-                }}
-              >
-                <Upload className="mr-2 h-3.5 w-3.5" />
-                Import
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  onExport();
-                  close();
-                }}
-              >
-                <Download className="mr-2 h-3.5 w-3.5" />
-                Export
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => void onSignOut()}>
-                <LogOut className="mr-2 h-3.5 w-3.5" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                {settingsEnabled && (
+                  <DropdownMenuItem
+                    onClick={() => {
+                      navigate("/settings");
+                      close();
+                    }}
+                  >
+                    <Settings className="mr-2 h-3.5 w-3.5" />
+                    Settings
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() => {
+                    onImport();
+                    close();
+                  }}
+                >
+                  <Upload className="mr-2 h-3.5 w-3.5" />
+                  Import
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    onExport();
+                    close();
+                  }}
+                >
+                  <Download className="mr-2 h-3.5 w-3.5" />
+                  Export
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => void onSignOut()}>
+                  <LogOut className="mr-2 h-3.5 w-3.5" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </div>

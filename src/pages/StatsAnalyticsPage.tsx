@@ -197,7 +197,7 @@ export default function StatsAnalyticsPage() {
   }, [preferences?.streak_rest_date, todayIso, updatePreferences]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[#fdfbf0]">
+    <div className="flex min-h-0 flex-1 flex-col bg-background">
       <AppPageHeader
         title="Stats & analytics"
         subtitle="Writing progress, streaks, and project totals"
@@ -208,14 +208,14 @@ export default function StatsAnalyticsPage() {
           {preferences && <FirstRunStatsCard />}
 
           {sorted.length === 0 && (
-            <div className="rounded-xl border-2 border-dashed border-neutral-400 bg-amber-50/80 p-6 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.08)] md:p-8">
-              <h2 className="text-lg font-bold text-neutral-900">No projects yet</h2>
+            <div className="rounded-xl border-2 border-dashed border-neutral-400 bg-amber-50/80 p-6 shadow-sm md:p-8">
+              <h2 className="text-lg font-bold text-foreground">No projects yet</h2>
               <p className="mt-2 max-w-lg text-sm text-muted-foreground">
                 Create a manuscript to start tracking words, streaks, and per-project progress here.
               </p>
               <Button
                 type="button"
-                className="mt-4 gap-2 border-2 border-neutral-900 bg-teal-600 text-white shadow-[4px_4px_0_0_rgb(0_0_0_/_0.15)] hover:bg-teal-700"
+                className="mt-4 gap-2 border border-border bg-primary text-white shadow-md hover:bg-primary/90"
                 onClick={() => navigate("/library")}
               >
                 <Plus className="h-4 w-4" />
@@ -232,17 +232,17 @@ export default function StatsAnalyticsPage() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)]"
+                className="rounded-lg border border-border bg-card p-4 shadow-sm"
               >
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{item.label}</p>
-                <p className="mt-1 font-mono text-xl font-bold tabular-nums text-neutral-900">
+                <p className="mt-1 font-mono text-xl font-bold tabular-nums text-foreground">
                   {loading ? "—" : item.value}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-5">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">Export snapshot</h2>
@@ -255,7 +255,7 @@ export default function StatsAnalyticsPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 border-2 border-neutral-900"
+                  className="gap-1.5 border border-border"
                   onClick={() => exportStatsAsCsv(stats)}
                 >
                   <FileDown className="h-3.5 w-3.5" aria-hidden />
@@ -265,7 +265,7 @@ export default function StatsAnalyticsPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="gap-1.5 border-2 border-neutral-900"
+                  className="gap-1.5 border border-border"
                   onClick={() => exportStatsAsPdfLikePrint(stats)}
                 >
                   <Printer className="h-3.5 w-3.5" aria-hidden />
@@ -276,8 +276,8 @@ export default function StatsAnalyticsPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border-2 border-neutral-900 bg-teal-50 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-900">Today</p>
+            <div className="rounded-lg border border-border bg-secondary p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Today</p>
               <p className="mt-1 font-mono text-xl font-bold">{loading ? "—" : wordsToday.toLocaleString()}</p>
               {!loading && dailyGoal > 0 && (
                 <p className="mt-2 text-[11px] text-neutral-700">
@@ -285,7 +285,7 @@ export default function StatsAnalyticsPage() {
                 </p>
               )}
             </div>
-            <div className="rounded-xl border-2 border-neutral-900 bg-amber-50 p-4">
+            <div className="rounded-lg border border-border bg-amber-50 p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-900">Streak</p>
               <p className="mt-1 font-mono text-xl font-bold">
                 {loading ? "—" : `${streak} day${streak === 1 ? "" : "s"}`}
@@ -299,19 +299,19 @@ export default function StatsAnalyticsPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="mt-2 h-8 border-2 border-neutral-900 text-xs"
+                  className="mt-2 h-8 border border-border text-xs"
                   onClick={() => void updatePreferences({ streak_rest_date: todayIso })}
                 >
                   Use rest day today
                 </Button>
               )}
             </div>
-            <div className="rounded-xl border-2 border-neutral-900 bg-white p-4">
+            <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Daily goal</p>
               <p className="mt-1 font-mono text-xl font-bold">{dailyGoal.toLocaleString()}</p>
               <p className="mt-2 text-[11px] text-muted-foreground">Set in Settings → Goals</p>
             </div>
-            <div className="rounded-xl border-2 border-neutral-900 bg-violet-50 p-4">
+            <div className="rounded-lg border border-border bg-violet-50 p-4">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-violet-900">Weekly goal</p>
               <p className="mt-1 font-mono text-xl font-bold">{weeklyGoal.toLocaleString()}</p>
               {!loading && weeklyGoal > 0 && (
@@ -322,17 +322,17 @@ export default function StatsAnalyticsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-6">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-6">
             <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">This week</h2>
-            <p className="mt-1 text-2xl font-bold text-neutral-900">
+            <p className="mt-1 text-2xl font-bold text-foreground">
               {loading ? "—" : weekWords.toLocaleString()} words
             </p>
             <p className="mt-1 text-xs text-muted-foreground">Monday–today (local calendar)</p>
             {!loading && weeklyGoal > 0 && (
               <div className="mt-3">
-                <div className="h-2.5 w-full overflow-hidden rounded-full border-2 border-neutral-900 bg-neutral-100">
+                <div className="h-2.5 w-full overflow-hidden rounded-full border border-border bg-secondary">
                   <div
-                    className="h-full rounded-sm bg-teal-500 transition-[width]"
+                    className="h-full rounded-sm bg-primary transition-[width]"
                     style={{ width: `${Math.min(100, Math.round((weekWords / weeklyGoal) * 100))}%` }}
                   />
                 </div>
@@ -343,7 +343,7 @@ export default function StatsAnalyticsPage() {
             )}
           </div>
 
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-6">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-6">
             <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">Last 7 days</h2>
             <div
               className="mt-4 flex h-44 items-end gap-1.5 sm:gap-2"
@@ -356,7 +356,7 @@ export default function StatsAnalyticsPage() {
                   <div key={day.date} className="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-end gap-1">
                     <div
                       className={cn(
-                        "w-full min-h-[3px] rounded-t border-2 border-neutral-900 bg-teal-500",
+                        "w-full min-h-[3px] rounded-t border border-border bg-primary",
                         day.words === 0 && "bg-neutral-200",
                       )}
                       style={{ height: `${Math.max(day.words > 0 ? 6 : 3, hPx)}px` }}
@@ -370,7 +370,7 @@ export default function StatsAnalyticsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-6">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">Writing activity</h2>
               {!loading && (
@@ -381,7 +381,7 @@ export default function StatsAnalyticsPage() {
             </div>
             {loading ? (
               <div
-                className="mt-4 h-24 animate-pulse rounded-md bg-neutral-100"
+                className="mt-4 h-24 animate-pulse rounded-md bg-secondary"
                 role="status"
                 aria-label="Loading writing activity"
               />
@@ -486,20 +486,20 @@ export default function StatsAnalyticsPage() {
             )}
           </div>
 
-          <div className="rounded-xl border-2 border-teal-200 bg-teal-50/80 p-4 shadow-brutal-sm md:p-5">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-900">Insight</p>
+          <div className="rounded-xl border-2 border-teal-200 bg-secondary/80 p-4 shadow-sm md:p-5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Insight</p>
             <p className="mt-2 text-sm leading-relaxed text-teal-950">{insight}</p>
           </div>
 
           {/* Writing sessions */}
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)] md:p-5">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm md:p-5">
             <div className="flex items-center gap-2">
-              <Timer className="h-4 w-4 text-teal-600" aria-hidden />
+              <Timer className="h-4 w-4 text-primary" aria-hidden />
               <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">Writing sessions</h2>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">Last 20 sprint / focus sessions from the Write view.</p>
             {sessionsLoading ? (
-              <div className="mt-4 h-24 animate-pulse rounded-md bg-neutral-100" />
+              <div className="mt-4 h-24 animate-pulse rounded-md bg-secondary" />
             ) : sessions.length === 0 ? (
               <p className="mt-4 text-sm text-muted-foreground">
                 No sessions yet — complete a sprint in the Write view to log one.
@@ -529,11 +529,11 @@ export default function StatsAnalyticsPage() {
             )}
           </div>
 
-          <div className="rounded-xl border-2 border-neutral-900 bg-white p-4 shadow-[4px_4px_0_0_rgb(0_0_0_/_0.1)]">
+          <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
             <h2 className="text-sm font-bold uppercase tracking-[0.15em] text-neutral-500">Projects</h2>
             <ul className="mt-3 space-y-2">
               {sorted.length === 0 ? (
-                <li className="flex flex-col gap-3 rounded-lg border border-dashed border-neutral-200 bg-neutral-50/80 p-4 sm:flex-row sm:items-center sm:justify-between">
+                <li className="flex flex-col gap-3 rounded-lg border border-dashed border-neutral-200 bg-accent/80 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm text-muted-foreground">
                     No projects yet — stats will fill in as you write.
                   </span>
@@ -557,7 +557,7 @@ export default function StatsAnalyticsPage() {
                       key={n.id}
                       className="flex flex-col gap-1 border-b border-neutral-100 pb-2 last:border-0 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <span className="font-semibold text-neutral-900">{n.title}</span>
+                      <span className="font-semibold text-foreground">{n.title}</span>
                       <span className="font-mono text-xs text-muted-foreground">
                         {w.toLocaleString()} words · {pct}% of target
                       </span>

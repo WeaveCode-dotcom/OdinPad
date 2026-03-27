@@ -28,7 +28,9 @@ const ARC_STAGES: { key: keyof CharacterArc; label: string; placeholder: string 
   { key: "endingState", label: "Ending state", placeholder: "Who have they become by the end?" },
 ];
 
-const typeIcons: Record<CodexEntry["type"], React.ElementType> = {
+type LegacyType = "character" | "location" | "lore" | "item" | "faction";
+
+const typeIcons: Record<LegacyType, React.ElementType> = {
   character: Users,
   location: MapPin,
   lore: Scroll,
@@ -36,7 +38,7 @@ const typeIcons: Record<CodexEntry["type"], React.ElementType> = {
   faction: Shield,
 };
 
-const typeLabels: Record<CodexEntry["type"], string> = {
+const typeLabels: Record<LegacyType, string> = {
   character: "Characters",
   location: "Locations",
   lore: "Lore",
@@ -44,7 +46,7 @@ const typeLabels: Record<CodexEntry["type"], string> = {
   faction: "Factions",
 };
 
-const types: CodexEntry["type"][] = ["character", "location", "lore", "item", "faction"];
+const types: LegacyType[] = ["character", "location", "lore", "item", "faction"];
 
 export default function CodexPanel({
   onClose,
@@ -58,7 +60,7 @@ export default function CodexPanel({
   const { activeNovel, addCodexEntry, updateCodexEntry, deleteCodexEntry } = useNovelContext();
   const { schedule } = useUndoableAction();
   const [selectedEntry, setSelectedEntry] = useState<CodexEntry | null>(null);
-  const [addingType, setAddingType] = useState<CodexEntry["type"] | null>(null);
+  const [addingType, setAddingType] = useState<LegacyType | null>(null);
   const [newName, setNewName] = useState("");
   const [search, setSearch] = useState("");
 
@@ -67,7 +69,7 @@ export default function CodexPanel({
   const searchQ = search.trim().toLowerCase();
   const grouped = types.reduce(
     (acc, type) => {
-      acc[type] = activeNovel.codexEntries.filter((e) => {
+      acc[type] = activeNovel.storyWikiEntries.filter((e) => {
         if (e.type !== type) return false;
         if (!searchQ) return true;
         return (
@@ -79,10 +81,10 @@ export default function CodexPanel({
       });
       return acc;
     },
-    {} as Record<CodexEntry["type"], CodexEntry[]>,
+    {} as Record<LegacyType, CodexEntry[]>,
   );
 
-  const codexTotal = activeNovel.codexEntries.length;
+  const codexTotal = activeNovel.storyWikiEntries.length;
 
   const handleAdd = () => {
     if (!newName.trim() || !addingType) return;

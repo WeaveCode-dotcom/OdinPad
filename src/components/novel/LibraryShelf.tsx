@@ -541,14 +541,14 @@ export default function LibraryShelf() {
     <>
       <div
         id="library"
-        className="relative space-y-4 rounded-xl border-2 border-dashed border-neutral-400 bg-white/60 p-4 pt-10 md:p-6 md:pt-12"
+        className="relative space-y-4 rounded-xl border-2 border-dashed border-neutral-400 bg-card/60 p-4 pt-10 md:p-6 md:pt-12"
       >
-        <span className="absolute -left-0.5 -top-3 inline-block -rotate-2 border-2 border-neutral-900 bg-teal-600 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-white">
+        <span className="absolute -left-0.5 -top-3 inline-block -rotate-2 border border-border bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-white">
           Library
         </span>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-3xl font-black uppercase leading-none tracking-tight text-neutral-900 md:text-4xl">
+            <h2 className="text-3xl font-black uppercase leading-none tracking-tight text-foreground md:text-4xl">
               Shelf
             </h2>
             <p className="mt-1 text-sm font-semibold text-muted-foreground">
@@ -563,7 +563,7 @@ export default function LibraryShelf() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter…"
-              className="min-w-[180px] max-w-xs border-2 border-neutral-900 bg-white shadow-[3px_3px_0_0_rgb(0_0_0_/_0.08)]"
+              className="min-w-[180px] max-w-xs border border-border bg-card shadow-sm"
             />
             <input
               ref={importInputRef}
@@ -582,7 +582,7 @@ export default function LibraryShelf() {
             <Button
               type="button"
               variant="outline"
-              className="border-2 border-neutral-900 bg-white"
+              className="border border-border bg-card"
               onClick={() => importInputRef.current?.click()}
             >
               Import JSON
@@ -590,7 +590,7 @@ export default function LibraryShelf() {
             <Button
               type="button"
               variant="outline"
-              className="border-2 border-neutral-900 bg-white"
+              className="border border-border bg-card"
               onClick={() => docxImportRef.current?.click()}
             >
               Import .docx
@@ -599,7 +599,7 @@ export default function LibraryShelf() {
               <Button
                 type="button"
                 variant="outline"
-                className="border-2 border-neutral-900 bg-white"
+                className="border border-border bg-card"
                 onClick={() => setExportMdOpen(true)}
               >
                 Export Markdown
@@ -609,7 +609,7 @@ export default function LibraryShelf() {
               <Button
                 type="button"
                 variant="outline"
-                className="border-2 border-neutral-900 bg-white"
+                className="border border-border bg-card"
                 onClick={() => setExportDocxOpen(true)}
               >
                 Export .docx
@@ -618,7 +618,7 @@ export default function LibraryShelf() {
             <Button
               type="button"
               variant="outline"
-              className="gap-2 border-2 border-neutral-900 bg-white"
+              className="gap-2 border border-border bg-card"
               onClick={() => setSeriesDialogOpen(true)}
             >
               <Library className="h-4 w-4" />
@@ -632,7 +632,7 @@ export default function LibraryShelf() {
               }}
             >
               <DialogTrigger asChild>
-                <Button className="gap-2 border-2 border-neutral-900 bg-teal-600 text-white shadow-[4px_4px_0_0_rgb(0_0_0_/_0.2)] hover:bg-teal-700">
+                <Button className="gap-2 border border-border bg-primary text-white shadow-md hover:bg-primary/90">
                   <Plus className="h-4 w-4" />
                   New Book
                 </Button>
@@ -809,7 +809,7 @@ export default function LibraryShelf() {
                       {createStep < 3 ? (
                         <Button
                           type="button"
-                          className="w-full border-2 border-neutral-900 bg-teal-600 text-white hover:bg-teal-700 sm:min-w-[120px]"
+                          className="w-full border border-border bg-primary text-white hover:bg-primary/90 sm:min-w-[120px]"
                           onClick={createStep === 1 ? goNextFromStep1 : goNextFromStep2}
                         >
                           Next
@@ -817,7 +817,7 @@ export default function LibraryShelf() {
                       ) : (
                         <Button
                           type="button"
-                          className="w-full border-2 border-neutral-900 bg-teal-600 text-white hover:bg-teal-700 sm:min-w-[160px]"
+                          className="w-full border border-border bg-primary text-white hover:bg-primary/90 sm:min-w-[160px]"
                           onClick={handleCreate}
                         >
                           Create book
@@ -832,16 +832,16 @@ export default function LibraryShelf() {
         </div>
 
         {novels.length === 0 && (
-          <div className="rounded-xl border-2 border-dashed border-neutral-400 bg-[#fffefb] p-8 text-center shadow-brutal md:p-12">
-            <BookOpen className="mx-auto mb-4 h-12 w-12 text-teal-700" aria-hidden />
-            <h3 className="text-xl font-black uppercase tracking-tight text-neutral-900">Start your first project</h3>
+          <div className="rounded-lg border border-dashed border-border bg-card p-8 text-center md:p-12">
+            <BookOpen className="mx-auto mb-4 h-12 w-12 text-primary" aria-hidden />
+            <h3 className="text-xl font-semibold text-foreground">Start your first project</h3>
             <p className="mx-auto mt-2 max-w-md text-sm font-medium text-muted-foreground">
               Projects hold your manuscript, scenes, and word counts in one place—so stats and exports stay accurate.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Button
                 type="button"
-                className="gap-2 border-2 border-neutral-900 bg-teal-600 text-white shadow-brutal-md hover:bg-teal-700"
+                className="gap-2 border border-border bg-primary text-white shadow-sm hover:bg-primary/90"
                 onClick={() => setOpen(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -850,7 +850,7 @@ export default function LibraryShelf() {
               <Button
                 type="button"
                 variant="outline"
-                className="gap-2 border-2 border-neutral-900 bg-white"
+                className="gap-2 border border-border bg-card"
                 onClick={() => setSeriesDialogOpen(true)}
               >
                 <Library className="h-4 w-4" />
@@ -859,7 +859,7 @@ export default function LibraryShelf() {
               <Button
                 type="button"
                 variant="outline"
-                className="border-2 border-neutral-900 bg-white"
+                className="border border-border bg-card"
                 onClick={() => importInputRef.current?.click()}
               >
                 Import JSON
@@ -878,7 +878,7 @@ export default function LibraryShelf() {
                     className={
                       isStandalone
                         ? "border-b-2 border-neutral-900 pb-3"
-                        : "rounded-xl border-2 border-neutral-900 bg-gradient-to-br from-teal-50/90 via-white to-amber-50/40 px-4 py-3 shadow-[3px_3px_0_0_rgb(0_0_0_/_0.08)]"
+                        : "rounded-lg border border-border bg-gradient-to-br from-teal-50/90 via-white to-amber-50/40 px-4 py-3 shadow-sm"
                     }
                   >
                     {isStandalone ? (
@@ -886,14 +886,14 @@ export default function LibraryShelf() {
                         <p className="text-[10px] font-black uppercase tracking-[0.28em] text-neutral-600">
                           Standalone
                         </p>
-                        <h3 className="mt-1 text-xl font-black tracking-tight text-neutral-900">One-off projects</h3>
+                        <h3 className="mt-1 text-xl font-black tracking-tight text-foreground">One-off projects</h3>
                         <p className="mt-0.5 text-sm text-muted-foreground">Books that are not part of a series.</p>
                       </div>
                     ) : (
                       <div className="flex flex-wrap items-end justify-between gap-3">
                         <div>
-                          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-teal-900">Series</p>
-                          <h3 className="mt-0.5 text-xl font-black tracking-tight text-neutral-900">{group.label}</h3>
+                          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-primary">Series</p>
+                          <h3 className="mt-0.5 text-xl font-black tracking-tight text-foreground">{group.label}</h3>
                           <p className="mt-0.5 text-sm text-muted-foreground">
                             {group.items.length} book{group.items.length === 1 ? "" : "s"} · ordered by volume number
                           </p>
@@ -905,7 +905,7 @@ export default function LibraryShelf() {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="border-2 border-neutral-900 bg-white text-xs font-bold uppercase tracking-wide"
+                                className="border border-border bg-card text-xs font-bold uppercase tracking-wide"
                                 onClick={() => navigate(ROUTES.series(seriesKey))}
                               >
                                 Workspace
@@ -914,7 +914,7 @@ export default function LibraryShelf() {
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                className="border-2 border-neutral-900 bg-white text-xs font-bold uppercase tracking-wide"
+                                className="border border-border bg-card text-xs font-bold uppercase tracking-wide"
                                 onClick={() => {
                                   const row =
                                     seriesRows.find((s) => s.id === seriesKey) ??
@@ -934,7 +934,7 @@ export default function LibraryShelf() {
                               </Button>
                             </>
                           )}
-                          <span className="rounded-md border-2 border-neutral-900 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-neutral-800">
+                          <span className="rounded-md border border-border bg-card px-3 py-1 text-xs font-bold uppercase tracking-wide text-foreground/80">
                             Series shelf
                           </span>
                         </div>
@@ -946,10 +946,10 @@ export default function LibraryShelf() {
                       className={
                         isStandalone
                           ? "grid grid-cols-1 gap-3 lg:grid-cols-2"
-                          : "grid grid-cols-1 gap-3 rounded-xl border-2 border-dashed border-teal-700/25 bg-teal-50/20 p-3 sm:p-4 lg:grid-cols-2"
+                          : "grid grid-cols-1 gap-3 rounded-xl border-2 border-dashed border-teal-700/25 bg-secondary/20 p-3 sm:p-4 lg:grid-cols-2"
                       }
                     >
-                      <div className="col-span-full rounded-lg border-2 border-dashed border-teal-700/30 bg-white/70 px-4 py-10 text-center text-sm text-muted-foreground">
+                      <div className="col-span-full rounded-lg border-2 border-dashed border-teal-700/30 bg-card/70 px-4 py-10 text-center text-sm text-muted-foreground">
                         {isStandalone ? (
                           <>No standalone projects match this filter.</>
                         ) : (
@@ -957,7 +957,7 @@ export default function LibraryShelf() {
                             No books in this series yet.{" "}
                             <button
                               type="button"
-                              className="font-semibold text-teal-800 underline decoration-2 underline-offset-2 hover:text-teal-950"
+                              className="font-semibold text-primary underline decoration-2 underline-offset-2 hover:text-teal-950"
                               onClick={() => setOpen(true)}
                             >
                               New book
@@ -976,7 +976,7 @@ export default function LibraryShelf() {
                     >
                       <div
                         className={
-                          "grid grid-cols-1 gap-3 rounded-xl border-2 border-dashed border-teal-700/25 bg-teal-50/20 p-3 sm:p-4 lg:grid-cols-2"
+                          "grid grid-cols-1 gap-3 rounded-xl border-2 border-dashed border-teal-700/25 bg-secondary/20 p-3 sm:p-4 lg:grid-cols-2"
                         }
                       >
                         <SortableContext items={group.items.map((n) => n.id)} strategy={rectSortingStrategy}>
@@ -1006,7 +1006,7 @@ export default function LibraryShelf() {
                       className={
                         isStandalone
                           ? "grid grid-cols-1 gap-3 lg:grid-cols-2"
-                          : "grid grid-cols-1 gap-3 rounded-xl border-2 border-dashed border-teal-700/25 bg-teal-50/20 p-3 sm:p-4 lg:grid-cols-2"
+                          : "grid grid-cols-1 gap-3 rounded-xl border-2 border-dashed border-teal-700/25 bg-secondary/20 p-3 sm:p-4 lg:grid-cols-2"
                       }
                     >
                       {group.items.map((novel, i) => (

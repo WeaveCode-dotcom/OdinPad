@@ -17,26 +17,26 @@ export function AppPageHeader({ title, subtitle, helpLink, actions }: AppPageHea
   const { setMobileNavOpen } = useAppShell();
 
   return (
-    <header className="flex shrink-0 flex-col gap-4 border-b-2 border-neutral-900 bg-studio-cream px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
+    <header className="flex shrink-0 flex-col gap-4 border-b border-border bg-background px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="min-h-11 min-w-11 shrink-0 border-2 border-neutral-900 bg-white shadow-brutal-sm md:hidden"
+          className="min-h-11 min-w-11 shrink-0 md:hidden"
           onClick={() => setMobileNavOpen(true)}
           aria-label="Open navigation menu"
         >
           <Menu className="h-5 w-5" aria-hidden />
         </Button>
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
           {subtitle ? <p className="text-sm text-muted-foreground">{subtitle}</p> : null}
           {helpLink ? (
             <p className="mt-1 text-xs">
               <Link
                 to={helpLink.to}
-                className="font-medium text-teal-700 underline underline-offset-2 hover:text-teal-900"
+                className="font-medium text-primary underline underline-offset-2 hover:text-primary/80"
               >
                 {helpLink.label}
               </Link>

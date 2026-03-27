@@ -107,10 +107,10 @@ export function AppCommandMenu() {
       });
     }
     for (const n of novels) {
-      for (const c of n.codexEntries) {
+      for (const c of n.storyWikiEntries) {
         rows.push({
-          id: `codex-${n.id}-${c.id}`,
-          text: `${c.name} ${c.description ?? ""} ${c.notes ?? ""} codex ${n.title} character location lore`,
+          id: `story-wiki-${n.id}-${c.id}`,
+          text: `${c.name} ${c.description ?? ""} ${c.notes ?? ""} story wiki ${n.title} character location lore`,
         });
       }
     }
@@ -146,14 +146,14 @@ export function AppCommandMenu() {
   const scenesVisible = sceneItems.some((s) => show(`scene-${s.novelId}-${s.sceneId}`));
   const ideasVisible = ideaWebEntries.slice(0, 40).some((e) => show(`idea-${e.id}`));
   const actionVisible = show("action-quick-idea") || show("action-theme");
-  const codexVisible = novels.some((n) => n.codexEntries.some((c) => show(`codex-${n.id}-${c.id}`)));
-  const anyVisible = navVisible || projectsVisible || scenesVisible || ideasVisible || actionVisible || codexVisible;
+  const storyWikiVisible = novels.some((n) => n.storyWikiEntries.some((c) => show(`story-wiki-${n.id}-${c.id}`)));
+  const anyVisible = navVisible || projectsVisible || scenesVisible || ideasVisible || actionVisible || storyWikiVisible;
   const sepAfterActions =
-    actionVisible && (navVisible || projectsVisible || scenesVisible || ideasVisible || codexVisible);
-  const sepAfterNav = navVisible && (projectsVisible || scenesVisible || ideasVisible || codexVisible);
-  const sepAfterProjects = projectsVisible && (scenesVisible || ideasVisible || codexVisible);
-  const sepAfterScenes = scenesVisible && (ideasVisible || codexVisible);
-  const sepAfterIdeas = ideasVisible && codexVisible;
+    actionVisible && (navVisible || projectsVisible || scenesVisible || ideasVisible || storyWikiVisible);
+  const sepAfterNav = navVisible && (projectsVisible || scenesVisible || ideasVisible || storyWikiVisible);
+  const sepAfterProjects = projectsVisible && (scenesVisible || ideasVisible || storyWikiVisible);
+  const sepAfterScenes = scenesVisible && (ideasVisible || storyWikiVisible);
+  const sepAfterIdeas = ideasVisible && storyWikiVisible;
 
   return (
     <CommandDialog
@@ -386,15 +386,15 @@ export function AppCommandMenu() {
               </CommandGroup>
             )}
             {sepAfterIdeas && <CommandSeparator />}
-            {codexVisible && (
-              <CommandGroup heading="Codex">
+            {storyWikiVisible && (
+              <CommandGroup heading="Story Wiki">
                 {novels.flatMap((n) =>
-                  n.codexEntries
-                    .filter((c) => show(`codex-${n.id}-${c.id}`))
+                  n.storyWikiEntries
+                    .filter((c) => show(`story-wiki-${n.id}-${c.id}`))
                     .map((c) => (
                       <CommandItem
                         key={`${n.id}-${c.id}`}
-                        value={`codex-${n.id}-${c.id}`}
+                        value={`story-wiki-${n.id}-${c.id}`}
                         onSelect={() =>
                           run(() => {
                             setActiveNovel(n.id);

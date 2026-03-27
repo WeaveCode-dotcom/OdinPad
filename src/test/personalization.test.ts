@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { mapPersonalization } from "@/lib/personalization";
 
 describe("mapPersonalization", () => {
-  it("recommends codex-friendly fantasy flow", () => {
+  it("recommends story-wiki-friendly fantasy flow", () => {
     const result = mapPersonalization({
       writingStage: "drafting",
       writingStyle: "hybrid",
@@ -12,7 +12,7 @@ describe("mapPersonalization", () => {
     });
     expect(result.recommendedFrameworkId).toBe("heros-journey");
     expect(result.preferredWorkspaceMode).toBe("write");
-    expect(result.highlightedTools).toContain("codex");
+    expect(result.highlightedTools).toContain("story-wiki");
   });
 
   it("supports quiz mapping without stage", () => {
