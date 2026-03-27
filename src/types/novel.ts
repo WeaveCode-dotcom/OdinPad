@@ -46,6 +46,8 @@ export interface Novel {
   reviewAnnotations?: ReviewAnnotation[];
   /** Canvas studio state (corkboard, timeline, atlas, observatory). */
   canvas?: CanvasState;
+  /** Edit mode per-scene pass tracking. */
+  editPassState?: EditPassState;
 }
 
 /** Story planning studio persisted on the novel (see OdinPad Canvas.md). */
@@ -58,6 +60,10 @@ export interface CanvasState {
 
 export interface CorkboardState {
   cards: CorkboardCard[];
+  /** Currently active color-coding mode. */
+  colorMode?: "beat" | "status" | "pov" | "act" | "custom";
+  /** Card size preset. */
+  cardSize?: "sm" | "md" | "lg";
 }
 
 export interface CorkboardCard {
@@ -67,28 +73,72 @@ export interface CorkboardCard {
   summary?: string;
   x: number;
   y: number;
+  /** Custom hex color when colorMode is "custom". */
+  color?: string;
+  /** When true, drag is disabled for this card. */
+  locked?: boolean;
 }
 
 export interface TimelineState {
-  rows: { id: string; name: string; order: number; color?: string }[];
-  cards: { id: string; rowId: string; sceneId: string; columnIndex: number }[];
+  rows: TimelineRow[];
+  cards: TimelineCard[];
   columnMode?: "chapter" | "scene";
+}
+
+export interface TimelineRow {
+  id: string;
+  name: string;
+  order: number;
+  color?: string;
+  /** Group label for grouping rows under a category. */
+  group?: string;
+}
+
+export interface TimelineCard {
+  id: string;
+  rowId: string;
+  sceneId: string;
+  columnIndex: number;
 }
 
 export interface AtlasNode {
   id: string;
   type: "character" | "location" | "lore" | "item" | "faction" | "theme" | "custom";
   codexEntryId?: string;
+  /** When set, this node originated from an IdeaWebEntry. */
+  ideaWebEntryId?: string;
   label: string;
   x: number;
   y: number;
+  /** Additional notes shown in the node detail panel. */
+  notes?: string;
+  /** When true, auto-layout will not move this node. */
+  pinned?: boolean;
+  /** When true, node is hidden from the graph view but not deleted. */
+  hidden?: boolean;
 }
+
+export type AtlasEdgeType =
+  | "allied"
+  | "opposed"
+  | "romantic"
+  | "mentor"
+  | "family"
+  | "professional"
+  | "rivals"
+  | "custom";
 
 export interface AtlasEdge {
   id: string;
   source: string;
   target: string;
   label?: string;
+  /** Semantic relationship category. */
+  type?: AtlasEdgeType;
+  /** When true, arrowhead appears on both ends. */
+  bidirectional?: boolean;
+  /** Relationship strength 1–5; heavier weight renders as thicker line. */
+  weight?: number;
 }
 
 export interface AtlasState {
@@ -96,9 +146,31 @@ export interface AtlasState {
   edges: AtlasEdge[];
 }
 
+export interface HealthSnapshot {
+  id: string;
+  label?: string;
+  pacingScore?: number;
+  threadBalance?: number;
+  createdAt: string;
+  sceneCount?: number;
+  wordCount?: number;
+  beatCoverage?: number;
+  statusBreakdown?: Record<string, number>;
+  actBalance?: number[];
+}
+
+export interface ObservatoryInsightDismissal {
+  id: string;
+  dismissedUntil: string;
+}
+
 export interface ObservatoryState {
   pinnedPanels?: ("binder" | "blueprint" | "corkboard" | "timeline" | "atlas")[];
   lastHealthSnapshot?: { pacingScore?: number; threadBalance?: number; updatedAt: string };
+  /** Up to 10 historical snapshots for trend tracking. */
+  snapshots?: HealthSnapshot[];
+  /** Dismissed insight IDs and their snooze-until timestamps. */
+  insightDismissals?: ObservatoryInsightDismissal[];
 }
 
 export interface Act {
@@ -106,6 +178,10 @@ export interface Act {
   title: string;
   order: number;
   chapters: Chapter[];
+  /** Optional short blurb for this act's role in the story. */
+  summary?: string;
+  /** Custom label color token (hex). */
+  color?: string;
 }
 
 export interface Chapter {
@@ -113,6 +189,10 @@ export interface Chapter {
   title: string;
   order: number;
   scenes: Scene[];
+  /** Short blurb shown collapsed under the chapter name. */
+  summary?: string;
+  /** Per-chapter word count target. */
+  targetWordCount?: number;
 }
 
 export interface Scene {
@@ -129,6 +209,12 @@ export interface Scene {
   labels: string[];
   beatId?: string; // linked framework beat
   codexRefs?: string[];
+  /** Per-scene word count target. */
+  targetWordCount?: number;
+  /** Private planning notes (not manuscript text). */
+  notes?: string;
+  /** Optionally tag this scene as "inspired by" a specific IdeaWebEntry. */
+  ideaWebEntryId?: string;
 }
 
 export interface CharacterArc {
@@ -150,6 +236,8 @@ export interface CodexEntry {
   arc?: CharacterArc;
 }
 
+export type BeatTone = "action" | "revelation" | "emotional" | "transition" | "climax";
+
 export interface CustomBeat {
   id: string;
   title: string;
@@ -158,6 +246,14 @@ export interface CustomBeat {
   tags: string[];
   optional?: boolean;
   order: number;
+  /** Emotional tone of the beat for arc visualization. */
+  tone?: BeatTone;
+  /** Whether this beat is marked as addressed (separate from scene status). */
+  completionStatus?: boolean;
+  /** Custom color hex for this beat (propagates to Binder and Corkboard). */
+  color?: string;
+  /** Long-form planning context separate from description. */
+  notes?: string;
 }
 
 export interface Idea {
@@ -189,4 +285,38 @@ export interface ReviewAnnotation {
   createdAt: string;
 }
 
-export type WorkspaceMode = "sandbox" | "canvas" | "write" | "review";
+export type WorkspaceMode = "sandbox" | "canvas" | "write" | "edit" | "review";
+
+// ---------------------------------------------------------------------------
+// Edit mode
+// ---------------------------------------------------------------------------
+
+export type EditPass = "dev" | "line";
+
+export type EditPassStatus = "unedited" | "in-progress" | "dev-reviewed" | "line-edited" | "polished";
+
+export interface EditScenePassRecord {
+  status: EditPassStatus;
+  devDoneAt?: string;
+  lineDoneAt?: string;
+}
+
+export interface EditPassState {
+  /** Per-scene editing status keyed by scene ID */
+  sceneRecords: Record<string, EditScenePassRecord>;
+}
+
+export interface EditSuggestion {
+  id: string;
+  sceneId: string;
+  /** Which pass produced this suggestion */
+  pass: EditPass;
+  type: "tighten" | "heighten" | "dialogue" | "fewer-words" | "passive-voice" | "weak-word" | "cliche" | "show-dont-tell" | "revision-prompt";
+  /** The original text span (may be empty for revision prompts) */
+  original: string;
+  /** AI suggestion text (or prompt text for revision-prompt type) */
+  suggestion: string;
+  /** Brief rationale from the AI */
+  rationale: string;
+  status: "pending" | "accepted" | "rejected" | "promoted";
+}

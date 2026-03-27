@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, BookOpen, Camera, Eye, Feather, Map, PenTool, Zap } from "lucide-react";
+import { ArrowLeft, BookOpen, Camera, Eye, Feather, Map, PenTool, Wand2, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { AppArtsyDecor } from "@/components/layout/AppArtsyDecor";
@@ -17,6 +17,7 @@ import type { Novel, WorkspaceMode } from "@/types/novel";
 
 import CanvasView from "./CanvasView";
 import CodexPanel from "./CodexPanel";
+import EditView from "./EditView";
 import ReviewView from "./ReviewView";
 import { SceneSnapshotPanel } from "./SceneSnapshotPanel";
 import WriteView from "./WriteView";
@@ -30,6 +31,7 @@ const modeConfig: Record<WorkspaceMode, { label: string; icon: React.ElementType
   sandbox: { label: "Sandbox", icon: Zap },
   canvas: { label: "Canvas", icon: Map },
   write: { label: "Write", icon: PenTool },
+  edit: { label: "Edit", icon: Wand2 },
   review: { label: "Review", icon: Eye },
 };
 
@@ -94,7 +96,7 @@ export default function NovelWorkspace() {
   const canAccessAdvanced =
     !featureFlags.guidedTour || checklistDoneCount >= 3 || Boolean(preferences?.guided_tour_completed_at);
   const visibleModes = (Object.keys(modeConfig) as WorkspaceMode[]).filter(
-    (tab) => canAccessAdvanced || tab !== "review",
+    (tab) => canAccessAdvanced || (tab !== "review" && tab !== "edit"),
   );
 
   const hasCharacterEntry = useMemo(
@@ -340,9 +342,11 @@ export default function NovelWorkspace() {
                     ? "mode-write"
                     : m === "canvas"
                       ? "mode-canvas"
-                      : m === "review"
-                        ? "mode-review"
-                        : undefined
+                      : m === "edit"
+                        ? "mode-edit"
+                        : m === "review"
+                          ? "mode-review"
+                          : undefined
                 }
                 className={`relative flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-semibold transition-colors ${
                   active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -407,7 +411,7 @@ export default function NovelWorkspace() {
         <main
           id="novel-workspace-main"
           tabIndex={-1}
-          className={`relative min-w-0 flex-1 overflow-y-auto outline-none ${codexPinned && codexOpen ? "border-r-0" : ""}`}
+          className={`relative min-w-0 flex-1 outline-none ${mode === "edit" ? "flex flex-col overflow-hidden" : "overflow-y-auto"} ${codexPinned && codexOpen ? "border-r-0" : ""}`}
         >
           {featureFlags.guidedTour && !preferences?.guided_tour_completed_at && (
             <div className="mx-2 mt-2 rounded-sm border-2 border-primary/40 bg-primary/5 p-2 text-xs text-muted-foreground shadow-none">
@@ -465,6 +469,20 @@ export default function NovelWorkspace() {
               >
                 <PanelErrorBoundary panelName="Write">
                   <WriteView />
+                </PanelErrorBoundary>
+              </motion.div>
+            )}
+            {mode === "edit" && (
+              <motion.div
+                key="edit"
+                className="flex h-full min-h-0 flex-col"
+                initial={reduceMotion ? false : { opacity: 0, x: 32, filter: "blur(8px)" }}
+                animate={reduceMotion ? false : { opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={reduceMotion ? undefined : { opacity: 0, x: -24, filter: "blur(6px)" }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <PanelErrorBoundary panelName="Edit">
+                  <EditView />
                 </PanelErrorBoundary>
               </motion.div>
             )}

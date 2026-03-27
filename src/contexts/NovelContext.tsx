@@ -98,6 +98,14 @@ interface NovelContextType {
   /** Merge Canvas studio JSON (corkboard, timeline, atlas, observatory). */
   updateCanvas: (updater: (prev: CanvasState | undefined) => CanvasState) => void;
   reorderScene: (sceneId: string, fromChapterId: string, toChapterId: string, toIndex: number) => void;
+  deleteScene: (sceneId: string) => void;
+  duplicateScene: (sceneId: string) => void;
+  updateAct: (actId: string, patch: { title?: string; summary?: string; color?: string }) => void;
+  deleteAct: (actId: string) => void;
+  reorderAct: (from: number, to: number) => void;
+  updateChapter: (chapterId: string, patch: { title?: string; summary?: string; targetWordCount?: number }) => void;
+  deleteChapter: (chapterId: string) => void;
+  reorderChapter: (actId: string, from: number, to: number) => void;
   applyFramework: (frameworkId: string) => void;
   // Beat customization
   updateBeat: (beatId: string, patch: Partial<CustomBeat>) => void;
@@ -137,6 +145,8 @@ interface NovelContextType {
   deleteIdeaWebEntryRevisions: (id: string) => Promise<void>;
   /** Restore entry fields from a revision snapshot (saves current state as a revision first). */
   restoreIdeaWebFromSnapshot: (id: string, snapshot: IdeaWebRevisionSnapshot) => Promise<void>;
+  // Edit pass state
+  updateEditPassState: (sceneId: string, patch: Partial<import("@/types/novel").EditScenePassRecord>) => void;
   // Review annotations (stored on the Novel object)
   addReviewAnnotation: (sceneId: string, type: ReviewAnnotation["type"], content?: string) => void;
   updateReviewAnnotation: (id: string, patch: Partial<ReviewAnnotation>) => void;
@@ -168,7 +178,7 @@ function frameworkBeatsToCustom(beats: FrameworkBeat[]): CustomBeat[] {
 
 /** Map legacy DB values (`plan`, `brainstorm`) to Canvas / Sandbox. */
 function normalizeWorkspaceMode(mode: string | null | undefined): WorkspaceMode {
-  if (mode === "sandbox" || mode === "canvas" || mode === "write" || mode === "review") return mode;
+  if (mode === "sandbox" || mode === "canvas" || mode === "write" || mode === "edit" || mode === "review") return mode;
   if (mode === "brainstorm") return "sandbox";
   if (mode === "plan") return "canvas";
   return "canvas";
@@ -385,6 +395,25 @@ function NovelContextInner({
   const updateCanvas = useCallback(
     (updater: (prev: CanvasState | undefined) => CanvasState) => {
       updateNovel((novel) => ({ ...novel, canvas: updater(novel.canvas) }));
+    },
+    [updateNovel],
+  );
+
+  const updateEditPassState = useCallback(
+    (sceneId: string, patch: Partial<import("@/types/novel").EditScenePassRecord>) => {
+      updateNovel((novel) => {
+        const prev = novel.editPassState ?? { sceneRecords: {} };
+        const existing = prev.sceneRecords[sceneId] ?? { status: "unedited" as const };
+        return {
+          ...novel,
+          editPassState: {
+            sceneRecords: {
+              ...prev.sceneRecords,
+              [sceneId]: { ...existing, ...patch },
+            },
+          },
+        };
+      });
     },
     [updateNovel],
   );
@@ -657,6 +686,138 @@ function NovelContextInner({
     [updateNovel],
   );
 
+  const deleteScene = useCallback(
+    (sceneId: string) => {
+      updateNovel((novel) => ({
+        ...novel,
+        acts: novel.acts.map((act) => ({
+          ...act,
+          chapters: act.chapters.map((ch) => ({
+            ...ch,
+            scenes: ch.scenes.filter((s) => s.id !== sceneId).map((s, i) => ({ ...s, order: i })),
+          })),
+        })),
+      }));
+    },
+    [updateNovel],
+  );
+
+  const duplicateScene = useCallback(
+    (sceneId: string) => {
+      updateNovel((novel) => {
+        for (const act of novel.acts) {
+          for (const ch of act.chapters) {
+            const idx = ch.scenes.findIndex((s) => s.id === sceneId);
+            if (idx >= 0) {
+              const original = ch.scenes[idx];
+              const clone = {
+                ...original,
+                id: `sc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                title: `${original.title} (copy)`,
+                content: "",
+                wordCount: 0,
+                order: idx + 1,
+              };
+              const newScenes = [...ch.scenes];
+              newScenes.splice(idx + 1, 0, clone);
+              return {
+                ...novel,
+                acts: novel.acts.map((a) =>
+                  a.id === act.id
+                    ? {
+                        ...a,
+                        chapters: a.chapters.map((c) =>
+                          c.id === ch.id ? { ...c, scenes: newScenes.map((s, i) => ({ ...s, order: i })) } : c,
+                        ),
+                      }
+                    : a,
+                ),
+              };
+            }
+          }
+        }
+        return novel;
+      });
+    },
+    [updateNovel],
+  );
+
+  const updateAct = useCallback(
+    (actId: string, patch: { title?: string; summary?: string; color?: string }) => {
+      updateNovel((novel) => ({
+        ...novel,
+        acts: novel.acts.map((a) => (a.id === actId ? { ...a, ...patch } : a)),
+      }));
+    },
+    [updateNovel],
+  );
+
+  const deleteAct = useCallback(
+    (actId: string) => {
+      updateNovel((novel) => ({
+        ...novel,
+        acts: novel.acts.filter((a) => a.id !== actId).map((a, i) => ({ ...a, order: i })),
+      }));
+    },
+    [updateNovel],
+  );
+
+  const reorderAct = useCallback(
+    (from: number, to: number) => {
+      updateNovel((novel) => {
+        const acts = [...novel.acts];
+        const [moved] = acts.splice(from, 1);
+        acts.splice(to, 0, moved);
+        return { ...novel, acts: acts.map((a, i) => ({ ...a, order: i })) };
+      });
+    },
+    [updateNovel],
+  );
+
+  const updateChapter = useCallback(
+    (chapterId: string, patch: { title?: string; summary?: string; targetWordCount?: number }) => {
+      updateNovel((novel) => ({
+        ...novel,
+        acts: novel.acts.map((act) => ({
+          ...act,
+          chapters: act.chapters.map((ch) => (ch.id === chapterId ? { ...ch, ...patch } : ch)),
+        })),
+      }));
+    },
+    [updateNovel],
+  );
+
+  const deleteChapter = useCallback(
+    (chapterId: string) => {
+      updateNovel((novel) => ({
+        ...novel,
+        acts: novel.acts.map((act) => ({
+          ...act,
+          chapters: act.chapters
+            .filter((ch) => ch.id !== chapterId)
+            .map((ch, i) => ({ ...ch, order: i })),
+        })),
+      }));
+    },
+    [updateNovel],
+  );
+
+  const reorderChapter = useCallback(
+    (actId: string, from: number, to: number) => {
+      updateNovel((novel) => ({
+        ...novel,
+        acts: novel.acts.map((act) => {
+          if (act.id !== actId) return act;
+          const chapters = [...act.chapters];
+          const [moved] = chapters.splice(from, 1);
+          chapters.splice(to, 0, moved);
+          return { ...act, chapters: chapters.map((c, i) => ({ ...c, order: i })) };
+        }),
+      }));
+    },
+    [updateNovel],
+  );
+
   const addReviewAnnotation = useCallback(
     (sceneId: string, type: ReviewAnnotation["type"], content = "") => {
       const annotation: ReviewAnnotation = {
@@ -744,6 +905,14 @@ function NovelContextInner({
       openBookSandbox,
       updateCanvas,
       reorderScene,
+      deleteScene,
+      duplicateScene,
+      updateAct,
+      deleteAct,
+      reorderAct,
+      updateChapter,
+      deleteChapter,
+      reorderChapter,
       applyFramework,
       updateBeat,
       addCustomBeat,
@@ -763,6 +932,7 @@ function NovelContextInner({
       checkpointIdeaWebEntry: ideaWeb.checkpointIdeaWebEntry,
       deleteIdeaWebEntryRevisions: ideaWeb.deleteIdeaWebEntryRevisions,
       restoreIdeaWebFromSnapshot: ideaWeb.restoreIdeaWebFromSnapshot,
+      updateEditPassState,
       addReviewAnnotation,
       updateReviewAnnotation,
       deleteReviewAnnotation,
@@ -801,7 +971,16 @@ function NovelContextInner({
       goToDashboard,
       openBookSandbox,
       updateCanvas,
+      updateEditPassState,
       reorderScene,
+      deleteScene,
+      duplicateScene,
+      updateAct,
+      deleteAct,
+      reorderAct,
+      updateChapter,
+      deleteChapter,
+      reorderChapter,
       applyFramework,
       updateBeat,
       addCustomBeat,
