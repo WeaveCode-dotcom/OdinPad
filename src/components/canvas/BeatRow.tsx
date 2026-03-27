@@ -9,6 +9,7 @@ export function BeatRow({
   index,
   total,
   isEditing,
+  isFilled,
   onStartEdit,
   onStopEdit,
   onUpdate,
@@ -21,6 +22,7 @@ export function BeatRow({
   index: number;
   total: number;
   isEditing: boolean;
+  isFilled?: boolean;
   onStartEdit: () => void;
   onStopEdit: () => void;
   onUpdate: (id: string, patch: Partial<CustomBeat>) => void;
